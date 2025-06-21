@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: '我的个人博客',
-  description: '分享技术、生活和思考的个人博客',
+  description: '使用 Next.js 和 TypeScript 构建的个人博客',
 }
 
 export default function RootLayout({
@@ -17,11 +17,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh">
+    <html lang="zh-CN">
       <body className={inter.className}>
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen bg-gray-50">
           <Header />
-          <main className="flex-grow">
+          <main className="container mx-auto px-4 py-8 max-w-4xl">
             {children}
           </main>
           <Footer />
