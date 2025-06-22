@@ -1,7 +1,20 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { withAuth } from '../../components/AuthContext';
+import { formatDate } from '../../lib/utils';
 
-interface SiteStats {
+interface User {
+  id: number;
+  username: string;
+  name: string;
+  email: string;
+  role: string;
+  is_active: boolean;
+  last_login?: string;
+  created_at: string;
+}
+
+interface Stats {
   site: {
     total_visits: number;
     total_comments: number;
@@ -17,216 +30,308 @@ interface SiteStats {
     comment_count: number;
   }>;
   recent_comments: Array<{
-    post_slug: string;
+    id: number;
     user_name: string;
     content: string;
+    post_slug: string;
     created_at: string;
   }>;
 }
 
-export default function AdminPage() {
-  const [stats, setStats] = useState<SiteStats | null>(null);
+function AdminPage() {
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchStats();
+    fetchData();
   }, []);
 
-  const fetchStats = async () => {
+  const fetchData = async () => {
     try {
-      const response = await fetch('/api/site-stats');
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
+      // 获取当前用户信息
+      const userResponse = await fetch('/api/auth/me');
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        setCurrentUser(userData.user);
+      }
+
+      // 获取网站统计
+      const statsResponse = await fetch('/api/site-stats');
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        setStats(statsData);
+      }
+
+      // 获取用户列表
+      const usersResponse = await fetch('/api/admin/users');
+      if (usersResponse.ok) {
+        const usersData = await usersResponse.json();
+        setUsers(usersData.users || []);
       }
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error('获取数据失败:', error);
+      setError('加载数据失败');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('zh-CN', {
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const updateUserRole = async (userId: number, newRole: string) => {
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          role: newRole
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert('角色更新成功');
+        fetchData(); // 重新获取数据
+      } else {
+        alert(data.error || '更新失败');
+      }
+    } catch (error) {
+      console.error('更新角色失败:', error);
+      alert('更新失败');
+    }
   };
 
-  const getPostTitle = (slug: string) => {
-    const titles: { [key: string]: string } = {
-      'hello-world': '你好，世界！',
-      'getting-started-with-nextjs': 'Next.js 入门指南',
-      'thoughts-on-web-development': '对现代 Web 开发的一些思考'
-    };
-    return titles[slug] || slug;
+  const updateUserStatus = async (userId: number, isActive: boolean) => {
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          isActive
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert('用户状态更新成功');
+        fetchData(); // 重新获取数据
+      } else {
+        alert(data.error || '更新失败');
+      }
+    } catch (error) {
+      console.error('更新用户状态失败:', error);
+      alert('更新失败');
+    }
+  };
+
+  const deleteUser = async (userId: number, username: string) => {
+    if (!confirm(`确定要删除用户 "${username}" 吗？此操作不可恢复！`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/users?userId=${userId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert('用户删除成功');
+        fetchData(); // 重新获取数据
+      } else {
+        alert(data.error || '删除失败');
+      }
+    } catch (error) {
+      console.error('删除用户失败:', error);
+      alert('删除失败');
+    }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="text-gray-600">正在加载统计数据...</div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">加载中...</div>
       </div>
     );
   }
 
-  if (!stats) {
+  if (error) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="text-red-600">无法加载统计数据</div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-600">{error}</div>
       </div>
     );
   }
+
+  const isSuperAdmin = currentUser?.username === 'admin';
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">
-        网站管理
-      </h1>
-
-      {/* 概览统计 */}
-      <div className="grid md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-blue-100 text-blue-600">
-              📊
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">总访问量</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {stats.site.total_visits.toLocaleString()}
-              </p>
-            </div>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">管理后台</h1>
+        <div className="text-sm text-gray-600">
+          当前用户：{currentUser?.name} ({currentUser?.username})
+          {isSuperAdmin && <span className="ml-2 text-red-600 font-semibold">超级管理员</span>}
         </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-green-100 text-green-600">
-              💬
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">总评论数</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {stats.site.total_comments.toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-purple-100 text-purple-600">
-              📝
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">总文章数</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {stats.posts.total_posts}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-orange-100 text-orange-600">
-              👁️
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">文章总浏览</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {(stats.posts.total_views || 0).toLocaleString()}
-              </p>
-            </div>
-          </div>
+        <div className="text-xs text-gray-500 mt-1">
+          时间显示：上海时区 (UTC+8)
         </div>
       </div>
 
-      {/* 热门文章和最近评论 */}
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* 热门文章 */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            热门文章
-          </h2>
-          {stats.popular_posts.length > 0 ? (
-            <div className="space-y-4">
-              {stats.popular_posts.map((post, index) => (
-                <div key={post.post_slug} className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                  <div className="flex items-center space-x-3">
-                    <span className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-600 rounded-full text-sm font-bold">
-                      {index + 1}
-                    </span>
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        {getPostTitle(post.post_slug)}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {post.view_count} 浏览 · {post.comment_count} 评论
-                      </p>
+      {/* 权限说明 */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <h3 className="text-lg font-semibold text-blue-800 mb-2">权限说明</h3>
+        <div className="text-sm text-blue-700 space-y-1">
+          <p>• <span className="font-semibold">超级管理员 (admin)</span>：拥有所有权限，包括分配用户角色和删除用户</p>
+          <p>• <span className="font-semibold">普通管理员</span>：可以查看用户列表和启用/禁用用户，但不能分配角色</p>
+          <p>• <span className="font-semibold">普通用户</span>：只能访问博客内容和评论功能</p>
+        </div>
+      </div>
+
+      {/* 网站统计 */}
+      {stats && (
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4">网站统计</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">{stats.site.total_visits}</div>
+              <div className="text-gray-600">总访问量</div>
+            </div>
+            <div className="bg-green-50 p-4 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">{stats.site.total_comments}</div>
+              <div className="text-gray-600">总评论数</div>
+            </div>
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">{stats.posts.total_posts}</div>
+              <div className="text-gray-600">文章总数</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 用户管理 */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-xl font-semibold">用户管理</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  用户信息
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  角色
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  状态
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  最后登录
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  操作
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {users.map((user) => (
+                <tr key={user.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {user.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          @{user.username} • {user.email}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {isSuperAdmin && user.id !== currentUser?.id ? (
+                      <select
+                        value={user.role}
+                        onChange={(e) => updateUserRole(user.id, e.target.value)}
+                        className="text-sm border rounded px-2 py-1"
+                      >
+                        <option value="user">普通用户</option>
+                        <option value="admin">管理员</option>
+                      </select>
+                    ) : (
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        user.role === 'admin' 
+                          ? 'bg-red-100 text-red-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {user.role === 'admin' ? '管理员' : '普通用户'}
+                        {user.username === 'admin' && ' (超级)'}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {user.id !== currentUser?.id ? (
+                      <button
+                        onClick={() => updateUserStatus(user.id, !user.is_active)}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          user.is_active 
+                            ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                            : 'bg-red-100 text-red-800 hover:bg-red-200'
+                        }`}
+                      >
+                        {user.is_active ? '已启用' : '已禁用'}
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        已启用 (自己)
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {user.last_login ? formatDate(user.last_login) : '从未登录'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    {isSuperAdmin && user.id !== currentUser?.id && user.username !== 'admin' ? (
+                      <button
+                        onClick={() => deleteUser(user.id, user.username)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        删除
+                      </button>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </td>
+                </tr>
               ))}
-            </div>
-          ) : (
-            <p className="text-gray-600">暂无数据</p>
-          )}
-        </div>
-
-        {/* 最近评论 */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            最近评论
-          </h2>
-          {stats.recent_comments.length > 0 ? (
-            <div className="space-y-4">
-              {stats.recent_comments.map((comment, index) => (
-                <div key={index} className="p-3 bg-gray-50 rounded">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-gray-900">
-                      {comment.user_name}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {formatDate(comment.created_at)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-1">
-                    {comment.content.length > 100 
-                      ? comment.content.substring(0, 100) + '...' 
-                      : comment.content
-                    }
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    在文章《{getPostTitle(comment.post_slug)}》中
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-600">暂无评论</p>
-          )}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* 操作按钮 */}
-      <div className="mt-8 flex space-x-4">
-        <button
-          onClick={fetchStats}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-        >
-          刷新数据
-        </button>
-        <button
-          onClick={() => window.location.href = '/'}
-          className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
-        >
-          返回首页
-        </button>
+      {/* 安全提示 */}
+      <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-yellow-800 mb-1">安全提示</h3>
+        <div className="text-xs text-yellow-700">
+          • 所有敏感数据均已加密传输和存储
+          • 时间显示统一使用上海时区 (UTC+8)
+          • 超级管理员账号拥有最高权限，请妥善保管
+        </div>
       </div>
     </div>
   );
-} 
+}
+
+export default withAuth(AdminPage); 

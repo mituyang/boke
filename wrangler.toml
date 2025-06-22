@@ -1,5 +1,8 @@
-name = "personal-blog"
+name = "my-personal-blog"
 compatibility_date = "2024-01-15"
+
+# Pages 构建配置
+pages_build_output_dir = "out"
 
 # D1 数据库配置
 [[d1_databases]]
