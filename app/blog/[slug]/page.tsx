@@ -3,6 +3,8 @@ import { getPostBySlug, getAllSlugs } from '@/lib/posts'
 import { formatDate } from '@/lib/utils'
 import { remark } from 'remark'
 import html from 'remark-html'
+import Comments from '@/components/Comments'
+import PostStats from '@/components/PostStats'
 
 interface BlogPostPageProps {
   params: {
@@ -38,9 +40,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </h1>
         
         <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-          <time dateTime={post.date}>
-            {formatDate(post.date)}
-          </time>
+          <div className="flex items-center space-x-4">
+            <time dateTime={post.date}>
+              {formatDate(post.date)}
+            </time>
+            <PostStats postSlug={params.slug} />
+          </div>
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {post.tags.map((tag) => (
@@ -60,6 +65,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         className="prose prose-lg max-w-none"
         dangerouslySetInnerHTML={{ __html: contentHtml }}
       />
+      
+      {/* 评论系统 */}
+      <Comments postSlug={params.slug} />
     </article>
   )
 } 

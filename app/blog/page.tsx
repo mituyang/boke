@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getAllPosts } from '@/lib/posts'
 import { formatDate } from '@/lib/utils'
+import PostStats from '@/components/PostStats'
 
 export default async function BlogPage() {
   const posts = getAllPosts()
@@ -31,9 +32,12 @@ export default async function BlogPage() {
               </p>
               
               <div className="flex items-center justify-between">
-                <time dateTime={post.date} className="text-sm text-gray-500">
-                  {formatDate(post.date)}
-                </time>
+                <div className="flex items-center space-x-4">
+                  <time dateTime={post.date} className="text-sm text-gray-500">
+                    {formatDate(post.date)}
+                  </time>
+                  <PostStats postSlug={post.slug} showIncrement={false} />
+                </div>
                 {post.tags && post.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {post.tags.map((tag) => (

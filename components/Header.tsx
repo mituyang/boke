@@ -22,6 +22,9 @@ export default function Header() {
             <Link href="/contact" className="text-gray-600 hover:text-gray-900 transition-colors">
               联系
             </Link>
+            <Link href="/admin" className="text-gray-600 hover:text-gray-900 transition-colors">
+              管理
+            </Link>
           </div>
         </div>
       </nav>

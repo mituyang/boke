@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getAllPosts } from '@/lib/posts'
 import { formatDate } from '@/lib/utils'
+import PostStats from '@/components/PostStats'
 
 export default async function Home() {
   const posts = getAllPosts()
@@ -36,9 +37,12 @@ export default async function Home() {
                 </p>
                 
                 <div className="flex items-center justify-between text-sm text-gray-500">
-                  <time dateTime={post.date}>
-                    {formatDate(post.date)}
-                  </time>
+                  <div className="flex items-center space-x-4">
+                    <time dateTime={post.date}>
+                      {formatDate(post.date)}
+                    </time>
+                    <PostStats postSlug={post.slug} showIncrement={false} />
+                  </div>
                   <Link 
                     href={`/blog/${post.slug}`}
                     className="text-blue-600 hover:text-blue-800 font-medium"
