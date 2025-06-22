@@ -10,6 +10,7 @@ interface User {
   role: string;
   isActive: boolean;
   lastLogin?: string;
+  updatedAt?: string;
 }
 
 interface AuthContextType {

@@ -160,16 +160,14 @@ export async function onRequestPut(context) {
       }
     }
 
-    const shanghaiTime = getShanghaiTimeISO();
-
     // 更新用户信息
     await env.DB.prepare(
-      "UPDATE users SET username = ?, name = ?, email = ?, updated_at = ? WHERE id = ?"
-    ).bind(userId, nickname, email, shanghaiTime, user.id).run();
+      "UPDATE users SET username = ?, name = ?, email = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+    ).bind(userId, nickname, email, user.id).run();
 
     // 获取更新后的用户信息
     const { results } = await env.DB.prepare(
-      "SELECT id, username, name, email, role, is_active, last_login FROM users WHERE id = ?"
+      "SELECT id, username, name, email, role, is_active, last_login, updated_at FROM users WHERE id = ?"
     ).bind(user.id).all();
 
     const updatedUser = results[0];
@@ -184,7 +182,8 @@ export async function onRequestPut(context) {
         email: updatedUser.email,
         role: updatedUser.role,
         isActive: updatedUser.is_active,
-        lastLogin: updatedUser.last_login
+        lastLogin: updatedUser.last_login,
+        updatedAt: updatedUser.updated_at
       }
     });
 

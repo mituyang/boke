@@ -15,6 +15,9 @@ export default function ProfilePage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  
+  // 调试信息
+  console.log('ProfilePage render - isEditing:', isEditing);
 
   // 从认证上下文中加载用户信息
   useEffect(() => {
@@ -29,6 +32,13 @@ export default function ProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 如果不在编辑模式，不执行提交
+    if (!isEditing) {
+      console.log('不在编辑模式，忽略提交');
+      return;
+    }
+    
     setLoading(true);
     setError('');
     setSuccess('');
@@ -63,15 +73,24 @@ export default function ProfilePage() {
       if (response.ok) {
         setSuccess('个人资料更新成功！');
         setIsEditing(false);
-                 // 更新认证上下文中的用户信息
-         if (user) {
-           updateUser({
-             ...user,
-             name: formData.nickname,
-             username: formData.userId,
-             email: formData.email
-           });
-         }
+        // 使用后端返回的更新后的用户信息
+        if (data.user) {
+          updateUser({
+            id: data.user.id,
+            username: data.user.username,
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role,
+            isActive: data.user.isActive,
+            lastLogin: data.user.lastLogin
+          });
+          // 同步更新表单数据
+          setFormData({
+            nickname: data.user.name,
+            userId: data.user.username,
+            email: data.user.email
+          });
+        }
       } else {
         setError(data.error || '更新失败');
       }
@@ -218,7 +237,12 @@ export default function ProfilePage() {
               {!isEditing ? (
                 <button
                   type="button"
-                  onClick={() => setIsEditing(true)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('点击编辑资料按钮');
+                    setIsEditing(true);
+                  }}
                   className="flex-1 bg-blue-600 dark:bg-blue-700 text-white py-2 px-4 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                   编辑资料
@@ -234,7 +258,11 @@ export default function ProfilePage() {
                   </button>
                   <button
                     type="button"
-                    onClick={handleCancel}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleCancel();
+                    }}
                     disabled={loading}
                     className="flex-1 bg-gray-600 dark:bg-gray-700 text-white py-2 px-4 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -248,13 +276,21 @@ export default function ProfilePage() {
           <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <div className="text-sm text-gray-600 dark:text-gray-400">
               <div className="flex justify-between">
-                <span>用户ID:</span>
+                <span>数据库ID:</span>
                 <span className="font-mono">{user.id}</span>
               </div>
-                             <div className="flex justify-between mt-1">
-                 <span>最后登录:</span>
-                 <span>{user.lastLogin ? new Date(user.lastLogin).toLocaleString('zh-CN') : '从未登录'}</span>
-               </div>
+              <div className="flex justify-between mt-1">
+                <span>当前用户ID:</span>
+                <span className="font-mono">{user.username}</span>
+              </div>
+              <div className="flex justify-between mt-1">
+                <span>最后登录:</span>
+                <span>{user.lastLogin ? new Date(user.lastLogin).toLocaleString('zh-CN') : '从未登录'}</span>
+              </div>
+              <div className="flex justify-between mt-1">
+                <span>最后编辑资料:</span>
+                <span>{user.updatedAt ? new Date(user.updatedAt).toLocaleString('zh-CN') : '未知'}</span>
+              </div>
             </div>
           </div>
         </div>

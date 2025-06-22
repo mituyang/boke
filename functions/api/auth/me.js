@@ -20,7 +20,8 @@ export async function onRequestGet(context) {
         email: user.email,
         role: user.role,
         isActive: user.is_active,
-        lastLogin: user.last_login
+        lastLogin: user.last_login,
+        updatedAt: user.updated_at
       }
     });
 
@@ -43,7 +44,7 @@ async function verifyAuth(request, env) {
     // 检查会话是否存在且有效
     const tokenHash = await hashString(authToken);
     const { results } = await env.DB.prepare(
-      `SELECT u.id, u.username, u.name, u.email, u.role, u.is_active, u.last_login
+      `SELECT u.id, u.username, u.name, u.email, u.role, u.is_active, u.last_login, u.updated_at
        FROM users u 
        JOIN user_sessions s ON u.id = s.user_id 
        WHERE s.token_hash = ? AND s.expires_at > datetime('now') 
