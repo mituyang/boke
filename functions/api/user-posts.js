@@ -149,7 +149,8 @@ export async function onRequest(context) {
         }
 
         const post = await env.DB.prepare(`
-          SELECT up.*, u.username, u.name as author_name
+          SELECT up.*, u.username, u.name as author_name,
+            CASE WHEN u.role IN ('admin', 'super_admin') THEN 1 ELSE 0 END as is_official
           FROM user_posts up 
           JOIN users u ON up.author_id = u.id 
           WHERE up.id = ? AND u.is_active = 1 AND u.deleted_at IS NULL
@@ -193,7 +194,8 @@ export async function onRequest(context) {
       // 如果是获取已发布文章，不需要登录验证（用于首页显示）
       if (status === 'published') {
         let query = `
-          SELECT up.*, u.username, u.name as author_name
+          SELECT up.*, u.username, u.name as author_name,
+            CASE WHEN u.role IN ('admin', 'super_admin') THEN 1 ELSE 0 END as is_official
           FROM user_posts up 
           JOIN users u ON up.author_id = u.id 
           WHERE u.is_active = 1 AND u.deleted_at IS NULL
@@ -237,7 +239,8 @@ export async function onRequest(context) {
       }
 
       let query = `
-        SELECT up.*, u.username, u.name as author_name
+        SELECT up.*, u.username, u.name as author_name,
+          CASE WHEN u.role IN ('admin', 'super_admin') THEN 1 ELSE 0 END as is_official
         FROM user_posts up 
         JOIN users u ON up.author_id = u.id 
         WHERE u.is_active = 1 AND u.deleted_at IS NULL

@@ -82,7 +82,8 @@ export async function onRequest(context) {
       
       // 获取文章详情
       const post = await env.DB.prepare(`
-        SELECT up.*, u.username, u.name as author_name
+        SELECT up.*, u.username, u.name as author_name,
+          CASE WHEN u.role IN ('admin', 'super_admin') THEN 1 ELSE 0 END as is_official
         FROM user_posts up 
         JOIN users u ON up.author_id = u.id 
         WHERE up.slug = ? AND u.is_active = 1 AND u.deleted_at IS NULL

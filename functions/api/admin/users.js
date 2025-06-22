@@ -117,6 +117,14 @@ export async function onRequestPut(context) {
     const sql = `UPDATE users SET ${updates.join(', ')} WHERE id = ?`;
     await env.DB.prepare(sql).bind(...values).run();
 
+    // 如果更新了角色，需要同步更新该用户所有文章的官方状态
+    if (role !== undefined) {
+      const isOfficial = role === 'admin' || role === 'super_admin' ? 1 : 0;
+      await env.DB.prepare(
+        `UPDATE user_posts SET is_official = ?, updated_at = ? WHERE author_id = ?`
+      ).bind(isOfficial, shanghaiTime, userId).run();
+    }
+
     return Response.json({
       success: true,
       message: "用户信息更新成功"
