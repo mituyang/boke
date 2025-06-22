@@ -215,17 +215,8 @@ function ArticleContent() {
 
           {/* 文章统计和点赞 */}
           <div className="flex items-center justify-between pb-6 border-b">
-            {isUserPost ? (
-              <>
-                <div className="flex items-center space-x-6 text-sm text-gray-600">
-                  <span>浏览 {userPost!.view_count}</span>
-                  <span>评论 {userPost!.comment_count}</span>
-                </div>
-                <LikeButton slug={slug!} />
-              </>
-            ) : (
-              <PostStats postSlug={slug!} showIncrement={true} />
-            )}
+            <PostStats postSlug={slug!} showIncrement={true} showLikes={false} />
+            <LikeButton slug={slug!} />
           </div>
         </div>
       </div>

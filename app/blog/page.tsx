@@ -213,14 +213,9 @@ export default function BlogPage() {
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  {post.type === 'static' ? (
-                    <PostStats postSlug={post.slug} showIncrement={false} />
-                  ) : (
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
-                      <span>浏览 {post.view_count}</span>
-                      <span>评论 {post.comment_count}</span>
-                      <LikeButton slug={post.slug} className="text-sm" />
-                    </div>
+                  <PostStats postSlug={post.slug} showIncrement={false} showLikes={false} />
+                  {post.type === 'user' && (
+                    <LikeButton slug={post.slug} className="text-sm" />
                   )}
                 </div>
                 
