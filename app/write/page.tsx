@@ -201,7 +201,7 @@ function WritePage() {
           <div className="p-6">
             {/* 标题输入 */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 文章标题 *
               </label>
               <input
@@ -209,28 +209,28 @@ function WritePage() {
                 value={formData.title}
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                 placeholder="请输入文章标题..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 maxLength={100}
               />
-              <div className="mt-1 text-sm text-gray-500">
+              <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 {formData.title.length}/100 字符
               </div>
             </div>
 
             {/* 内容输入 */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 文章内容 *
               </label>
               <textarea
                 value={formData.content}
                 onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
                 placeholder="请输入文章内容...&#10;&#10;支持Markdown格式：&#10;# 一级标题&#10;## 二级标题&#10;**粗体**&#10;*斜体*&#10;[链接](http://example.com)&#10;![图片](http://example.com/image.jpg)&#10;```代码块```"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 rows={20}
                 style={{ minHeight: '500px' }}
               />
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 支持 Markdown 语法，{formData.content.length} 字符
               </div>
             </div>
@@ -241,7 +241,7 @@ function WritePage() {
                 <button
                   onClick={handlePreview}
                   disabled={!formData.content.trim()}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800"
                 >
                   预览
                 </button>
@@ -251,7 +251,7 @@ function WritePage() {
                 <button
                   onClick={() => handleSave('draft')}
                   disabled={loading || !formData.title.trim() || !formData.content.trim()}
-                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800"
                 >
                   {loading ? '保存中...' : '保存草稿'}
                 </button>
@@ -267,17 +267,17 @@ function WritePage() {
             </div>
 
             {/* Markdown 帮助 */}
-            <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Markdown 语法帮助</h3>
-              <div className="text-sm text-gray-600 space-y-1">
-                <div><code># 标题</code> - 一级标题</div>
-                <div><code>## 标题</code> - 二级标题</div>
-                <div><code>**粗体**</code> - <strong>粗体文字</strong></div>
-                <div><code>*斜体*</code> - <em>斜体文字</em></div>
-                <div><code>[链接文字](网址)</code> - 创建链接</div>
-                <div><code>![图片描述](图片网址)</code> - 插入图片</div>
-                <div><code>```代码```</code> - 代码块</div>
-                <div><code>&gt; 引用</code> - 引用文字</div>
+            <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Markdown 语法帮助</h3>
+              <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                <div><code className="bg-gray-200 dark:bg-gray-600 px-1 rounded"># 标题</code> - 一级标题</div>
+                <div><code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">## 标题</code> - 二级标题</div>
+                <div><code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">**粗体**</code> - <strong>粗体文字</strong></div>
+                <div><code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">*斜体*</code> - <em>斜体文字</em></div>
+                <div><code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">[链接文字](网址)</code> - 创建链接</div>
+                <div><code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">![图片描述](图片网址)</code> - 插入图片</div>
+                <div><code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">```代码```</code> - 代码块</div>
+                <div><code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">&gt; 引用</code> - 引用文字</div>
               </div>
             </div>
           </div>

@@ -136,19 +136,19 @@ function ArticleContent() {
   // 格式化内容（简单的Markdown渲染）
   const formatContent = (content: string) => {
     return content
-      .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold text-gray-900 mt-8 mb-4">$1</h1>')
-      .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold text-gray-900 mt-6 mb-3">$1</h2>')
-      .replace(/^### (.+)$/gm, '<h3 class="text-xl font-bold text-gray-900 mt-4 mb-2">$1</h3>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
-      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">$1</a>')
+      .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold text-gray-900 dark:text-white mt-8 mb-4">$1</h1>')
+      .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-3">$1</h2>')
+      .replace(/^### (.+)$/gm, '<h3 class="text-xl font-bold text-gray-900 dark:text-white mt-4 mb-2">$1</h3>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-gray-900 dark:text-white">$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em class="italic text-gray-700 dark:text-gray-300">$1</em>')
+      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline" target="_blank" rel="noopener noreferrer">$1</a>')
       .replace(/!\[(.+?)\]\((.+?)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-4" />')
       .replace(/```[\s\S]*?```/g, (match) => {
         const content = match.slice(3, -3);
-        return `<pre class="bg-gray-100 p-4 rounded-lg my-4 overflow-x-auto"><code>${content}</code></pre>`;
+        return `<pre class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg my-4 overflow-x-auto"><code class="text-gray-900 dark:text-gray-100">${content}</code></pre>`;
       })
-      .replace(/`(.+?)`/g, '<code class="bg-gray-100 px-2 py-1 rounded text-sm">$1</code>')
-      .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-600 my-4">$1</blockquote>')
+      .replace(/`(.+?)`/g, '<code class="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2 py-1 rounded text-sm">$1</code>')
+      .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-600 dark:text-gray-400 my-4">$1</blockquote>')
       .replace(/\n/g, '<br>');
   };
 
@@ -198,7 +198,7 @@ function ArticleContent() {
             {post!.title}
           </h1>
           
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-6">
+          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-6">
             <div className="flex items-center space-x-4">
               {isUserPost ? (
                 <>
@@ -215,7 +215,7 @@ function ArticleContent() {
           </div>
 
           {/* 文章统计和点赞 */}
-          <div className="flex items-center justify-between pb-6 border-b">
+          <div className="flex items-center justify-between pb-6 border-b border-gray-200 dark:border-gray-700">
             <PostStats postSlug={slug!} showIncrement={true} showLikes={false} />
             <LikeButton slug={slug!} />
           </div>
@@ -224,9 +224,9 @@ function ArticleContent() {
 
       {/* 文章内容 */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8">
           <div 
-            className="prose prose-lg max-w-none"
+            className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300"
             dangerouslySetInnerHTML={{ 
               __html: formatContent(post!.content) 
             }}
@@ -235,17 +235,17 @@ function ArticleContent() {
 
         {/* 作者信息 */}
         {isUserPost && (
-          <div className="bg-white rounded-lg shadow-sm p-6 mt-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">关于作者</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mt-8">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">关于作者</h3>
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-blue-600 dark:bg-blue-700 rounded-full flex items-center justify-center">
                 <span className="text-white font-semibold text-lg">
                   {userPost!.author_name.charAt(0)}
                 </span>
               </div>
               <div>
-                <div className="font-medium text-gray-900">{userPost!.author_name}</div>
-                <div className="text-gray-600">@{userPost!.username}</div>
+                <div className="font-medium text-gray-900 dark:text-white">{userPost!.author_name}</div>
+                <div className="text-gray-600 dark:text-gray-400">@{userPost!.username}</div>
               </div>
             </div>
           </div>

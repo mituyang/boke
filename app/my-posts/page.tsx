@@ -106,13 +106,13 @@ function MyPostsPage() {
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case 'published':
-        return <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">已发布</span>;
+        return <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded text-xs">已发布</span>;
       case 'draft':
-        return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">草稿</span>;
+        return <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded text-xs">草稿</span>;
       case 'deleted':
-        return <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs">已删除</span>;
+        return <span className="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded text-xs">已删除</span>;
       default:
-        return <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">{status}</span>;
+        return <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs">{status}</span>;
     }
   };
 
@@ -173,7 +173,7 @@ function MyPostsPage() {
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   statusFilter === filter.key
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
               >
                 {filter.label}
@@ -184,9 +184,9 @@ function MyPostsPage() {
 
         {/* 文章列表 */}
         {posts.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">还没有文章</h3>
-            <p className="text-gray-600 mb-4">开始写您的第一篇文章吧！</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">还没有文章</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">开始写您的第一篇文章吧！</p>
             <Link
               href="/write"
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
@@ -195,37 +195,37 @@ function MyPostsPage() {
             </Link>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       文章
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       状态
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       统计
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       时间
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       操作
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {posts.map((post) => (
-                    <tr key={post.id} className="hover:bg-gray-50">
+                    <tr key={post.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="px-6 py-4">
                         <div>
-                          <h3 className="text-sm font-medium text-gray-900 mb-1">
+                          <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
                             {post.title}
                           </h3>
-                          <p className="text-sm text-gray-600 line-clamp-2">
+                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                             {post.excerpt}
                           </p>
                         </div>
@@ -234,21 +234,21 @@ function MyPostsPage() {
                         <div className="flex flex-col space-y-1">
                           {getStatusDisplay(post.status)}
                           {post.is_official && (
-                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                            <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded text-xs">
                               官方文章
                             </span>
                           )}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-600 space-y-1">
+                        <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                           <div>浏览：{post.view_count}</div>
                           <div>点赞：{post.like_count}</div>
                           <div>评论：{post.comment_count}</div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-600 space-y-1">
+                        <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                           <div>创建：{formatDate(post.created_at)}</div>
                           {post.updated_at !== post.created_at && (
                             <div>更新：{formatDate(post.updated_at)}</div>
@@ -301,7 +301,7 @@ function MyPostsPage() {
               {currentPage > 1 && (
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
-                  className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50"
+                  className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   上一页
                 </button>
@@ -321,7 +321,7 @@ function MyPostsPage() {
                       className={`px-3 py-2 rounded-lg text-sm ${
                         page === currentPage
                           ? 'bg-blue-600 text-white'
-                          : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50'
+                          : 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                       }`}
                     >
                       {page}
@@ -332,7 +332,7 @@ function MyPostsPage() {
                   (page === currentPage + 3 && page < totalPages)
                 ) {
                   return (
-                    <span key={page} className="px-3 py-2 text-gray-400">
+                    <span key={page} className="px-3 py-2 text-gray-400 dark:text-gray-500">
                       ...
                     </span>
                   );
@@ -343,7 +343,7 @@ function MyPostsPage() {
               {currentPage < totalPages && (
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
-                  className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50"
+                  className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   下一页
                 </button>

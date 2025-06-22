@@ -105,19 +105,19 @@ export default function Comments({ postSlug }: CommentsProps) {
   const renderComment = (comment: Comment, depth = 0) => (
     <div 
       key={comment.id} 
-      className={`border-l-2 border-gray-200 pl-4 mb-4 ${depth > 0 ? 'ml-6' : ''}`}
+      className={`border-l-2 border-gray-200 dark:border-gray-600 pl-4 mb-4 ${depth > 0 ? 'ml-6' : ''}`}
     >
-      <div className="bg-white rounded-lg p-4 shadow-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2">
-            <h4 className="font-semibold text-gray-900">{comment.user_name}</h4>
-            <span className="text-sm text-gray-500">@{comment.username}</span>
+            <h4 className="font-semibold text-gray-900 dark:text-white">{comment.user_name}</h4>
+            <span className="text-sm text-gray-500 dark:text-gray-400">@{comment.username}</span>
           </div>
-          <time className="text-sm text-gray-500">
+          <time className="text-sm text-gray-500 dark:text-gray-400">
             {formatDate(comment.created_at)}
           </time>
         </div>
-        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+        <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{comment.content}</p>
       </div>
       
       {/* 渲染回复 */}
@@ -131,17 +131,17 @@ export default function Comments({ postSlug }: CommentsProps) {
 
   return (
     <div className="mt-12">
-      <h3 className="text-2xl font-bold text-gray-900 mb-6">
+      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
         评论 ({getTotalCommentCount(comments)})
       </h3>
 
       {/* 评论表单 */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h4 className="text-lg font-semibold mb-4">发表评论</h4>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">发表评论</h4>
         
         {!isLoggedIn() ? (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-blue-800 mb-3">请先登录后再发表评论</p>
+          <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+            <p className="text-blue-800 dark:text-blue-200 mb-3">请先登录后再发表评论</p>
             <div className="space-x-3">
               <a
                 href="/login"
@@ -151,7 +151,7 @@ export default function Comments({ postSlug }: CommentsProps) {
               </a>
               <a
                 href="/register"
-                className="inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50"
+                className="inline-flex items-center px-4 py-2 border border-blue-300 dark:border-blue-600 text-sm font-medium rounded-md text-blue-700 dark:text-blue-300 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700"
               >
                 注册账号
               </a>
@@ -160,18 +160,18 @@ export default function Comments({ postSlug }: CommentsProps) {
         ) : (
           <>
             <div className="mb-4">
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
                 <span>当前用户：</span>
-                <span className="font-medium text-gray-900">{user?.name}</span>
-                <span className="text-gray-500">(@{user?.username})</span>
+                <span className="font-medium text-gray-900 dark:text-white">{user?.name}</span>
+                <span className="text-gray-500 dark:text-gray-400">(@{user?.username})</span>
               </div>
             </div>
 
             {message && (
               <div className={`p-3 rounded mb-4 ${
                 message.includes('成功') 
-                  ? 'bg-green-100 text-green-700 border border-green-300' 
-                  : 'bg-red-100 text-red-700 border border-red-300'
+                  ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 border border-green-300 dark:border-green-700' 
+                  : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700'
               }`}>
                 {message}
               </div>
@@ -179,7 +179,7 @@ export default function Comments({ postSlug }: CommentsProps) {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   评论内容 *
                 </label>
                 <textarea
@@ -188,11 +188,11 @@ export default function Comments({ postSlug }: CommentsProps) {
                   rows={4}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="请输入您的评论..."
                   maxLength={1000}
                 />
-                <div className="text-right text-xs text-gray-500 mt-1">
+                <div className="text-right text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {content.length}/1000
                 </div>
               </div>
@@ -200,7 +200,7 @@ export default function Comments({ postSlug }: CommentsProps) {
               <button
                 type="submit"
                 disabled={submitting || !content.trim()}
-                className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-blue-600 dark:bg-blue-700 text-white px-6 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? '发表中...' : '发表评论'}
               </button>
@@ -213,7 +213,7 @@ export default function Comments({ postSlug }: CommentsProps) {
       <div>
         {loading ? (
           <div className="text-center py-8">
-            <div className="text-gray-600">正在加载评论...</div>
+            <div className="text-gray-600 dark:text-gray-400">正在加载评论...</div>
           </div>
         ) : getTotalCommentCount(comments) > 0 ? (
           <div className="space-y-4">
@@ -221,7 +221,7 @@ export default function Comments({ postSlug }: CommentsProps) {
           </div>
         ) : (
           <div className="text-center py-8">
-            <div className="text-gray-500">暂无评论，来发表第一条评论吧！</div>
+            <div className="text-gray-500 dark:text-gray-400">暂无评论，来发表第一条评论吧！</div>
           </div>
         )}
       </div>
