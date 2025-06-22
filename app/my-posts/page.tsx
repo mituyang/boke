@@ -17,6 +17,7 @@ interface UserPost {
   updated_at: string;
   published_at: string | null;
   author_name: string;
+  is_official: boolean;
 }
 
 interface PostsResponse {
@@ -230,7 +231,14 @@ function MyPostsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        {getStatusDisplay(post.status)}
+                        <div className="flex flex-col space-y-1">
+                          {getStatusDisplay(post.status)}
+                          {post.is_official && (
+                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                              官方文章
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-600 space-y-1">

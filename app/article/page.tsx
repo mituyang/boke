@@ -20,6 +20,7 @@ interface UserPost {
   published_at: string | null;
   author_name: string;
   username: string;
+  is_official: boolean;
 }
 
 interface StaticPost {

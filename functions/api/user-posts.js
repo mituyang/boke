@@ -224,12 +224,15 @@ export async function onRequest(context) {
       const excerpt = generateExcerpt(content);
       const currentTime = getShanghaiTimeISO();
       const publishedAt = status === 'published' ? currentTime : null;
+      
+      // 管理员和超级管理员创建的文章标记为官方文章
+      const isOfficial = user.role === 'admin' || user.role === 'super_admin';
 
       const result = await env.DB.prepare(`
         INSERT INTO user_posts 
-        (slug, title, content, excerpt, author_id, status, published_at, created_at, updated_at) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).bind(slug, title, content, excerpt, user.id, status, publishedAt, currentTime, currentTime).run();
+        (slug, title, content, excerpt, author_id, status, published_at, is_official, created_at, updated_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(slug, title, content, excerpt, user.id, status, publishedAt, isOfficial, currentTime, currentTime).run();
 
       // 如果发布，更新网站统计
       if (status === 'published') {

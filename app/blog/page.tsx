@@ -17,6 +17,7 @@ interface UserPost {
   published_at: string;
   author_name: string;
   username: string;
+  is_official: boolean;
   type: 'user';
 }
 
@@ -181,11 +182,11 @@ export default function BlogPage() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-2">
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    post.type === 'static' 
+                    post.type === 'static' || (post.type === 'user' && post.is_official)
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-blue-100 text-blue-800'
                   }`}>
-                    {post.type === 'static' ? '官方文章' : '用户文章'}
+                    {post.type === 'static' || (post.type === 'user' && post.is_official) ? '官方文章' : '用户文章'}
                   </span>
                   {post.type === 'user' && (
                     <span className="text-sm text-gray-500">
