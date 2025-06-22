@@ -1,14 +1,30 @@
 'use client';
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useAuth } from './AuthContext'
 
 export default function Header() {
   const { user, logout, isAdmin, isLoggedIn } = useAuth();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     await logout();
     window.location.href = '/';
+  };
+
+  // 判断是否为当前页面
+  const isCurrentPage = (href: string) => {
+    if (href === '/' && pathname === '/') return true;
+    if (href !== '/' && pathname.startsWith(href)) return true;
+    return false;
+  };
+
+  // 获取链接样式
+  const getLinkStyle = (href: string) => {
+    return isCurrentPage(href)
+      ? "text-blue-600 font-medium transition-colors"
+      : "text-gray-600 hover:text-gray-900 transition-colors";
   };
 
   return (
@@ -20,26 +36,26 @@ export default function Header() {
           </Link>
           
           <div className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/" className={getLinkStyle('/')}>
               首页
             </Link>
-            <Link href="/blog" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/blog" className={getLinkStyle('/blog')}>
               博客
             </Link>
-            <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/about" className={getLinkStyle('/about')}>
               关于
             </Link>
-            <Link href="/contact" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/contact" className={getLinkStyle('/contact')}>
               联系
             </Link>
             
             {/* 登录用户可以看到写文章和我的文章 */}
             {isLoggedIn() && (
               <>
-                <Link href="/write" className="text-blue-600 hover:text-blue-800 transition-colors font-medium">
+                <Link href="/write" className={getLinkStyle('/write')}>
                   写文章
                 </Link>
-                <Link href="/my-posts" className="text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/my-posts" className={getLinkStyle('/my-posts')}>
                   我的文章
                 </Link>
               </>
@@ -47,7 +63,7 @@ export default function Header() {
             
             {/* 管理员才能看到管理链接 */}
             {isAdmin() && (
-              <Link href="/admin" className="text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/admin" className={getLinkStyle('/admin')}>
                 管理
               </Link>
             )}
