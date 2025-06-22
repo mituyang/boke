@@ -115,7 +115,15 @@ export default function BlogPage() {
   // 过滤文章
   const filteredPosts = posts.filter(post => {
     if (filter === 'all') return true;
-    return post.type === filter;
+    if (filter === 'static') {
+      // 官方文章：包括静态文章和标记为官方的用户文章
+      return post.type === 'static' || (post.type === 'user' && post.is_official);
+    }
+    if (filter === 'user') {
+      // 用户文章：只包括非官方的用户文章
+      return post.type === 'user' && !post.is_official;
+    }
+    return false;
   });
 
   // 格式化日期
