@@ -4,19 +4,19 @@ export async function onRequestPost(context) {
 
   try {
     const requestData = await request.json();
-    let { username, name, email, password, confirmPassword, encrypted } = requestData;
+    let { nickname, userId, email, password, confirmPassword, encrypted } = requestData;
 
     // 如果数据已加密，先解密
     if (encrypted) {
-      username = decryptData(username);
-      name = decryptData(name);
+      nickname = decryptData(nickname);
+      userId = decryptData(userId);
       email = decryptData(email);
       password = decryptData(password);
       confirmPassword = decryptData(confirmPassword);
     }
 
     // 基本验证
-    if (!username || !name || !email || !password || !confirmPassword) {
+    if (!nickname || !userId || !email || !password || !confirmPassword) {
       return Response.json(
         { error: "所有字段都是必填的" }, 
         { status: 400 }
@@ -38,10 +38,10 @@ export async function onRequestPost(context) {
       );
     }
 
-    // 验证用户名格式
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+    // 验证用户ID格式
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(userId)) {
       return Response.json(
-        { error: "用户名只能包含字母、数字和下划线，长度3-20位" }, 
+        { error: "用户ID只能包含字母、数字和下划线，长度3-20位" }, 
         { status: 400 }
       );
     }
@@ -54,14 +54,14 @@ export async function onRequestPost(context) {
       );
     }
 
-    // 检查用户名是否已存在
+    // 检查用户ID是否已存在
     const existingUser = await env.DB.prepare(
       "SELECT id FROM users WHERE username = ?"
-    ).bind(username).first();
+    ).bind(userId).first();
 
     if (existingUser) {
       return Response.json(
-        { error: "用户名已存在" }, 
+        { error: "用户ID已存在" }, 
         { status: 409 }
       );
     }
@@ -84,7 +84,7 @@ export async function onRequestPost(context) {
     // 创建用户
     const result = await env.DB.prepare(
       "INSERT INTO users (username, name, email, password_hash, role, is_active) VALUES (?, ?, ?, ?, 'user', TRUE)"
-    ).bind(username, name, email, passwordHash).run();
+    ).bind(userId, nickname, email, passwordHash).run();
 
     return Response.json({
       success: true,

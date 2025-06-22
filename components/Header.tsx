@@ -75,14 +75,18 @@ export default function Header() {
             {/* 用户认证状态 */}
             {isLoggedIn() ? (
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600 dark:text-gray-300">
+                <Link 
+                  href="/profile" 
+                  className="text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  title="查看个人资料"
+                >
                   欢迎，{user?.name}
                   {isAdmin() && (
                     <span className="ml-1 px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">
                       管理员
                     </span>
                   )}
-                </span>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors"

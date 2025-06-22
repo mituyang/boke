@@ -23,19 +23,21 @@ export async function onRequestPost(context) {
     // 基本验证
     if (!username || !password) {
       return Response.json(
-        { error: "用户名和密码都是必填的" }, 
+        { error: "账号和密码都是必填的" }, 
         { status: 400 }
       );
     }
 
-    // 查找用户
+    // 查找用户（支持用户ID或邮箱登录）
     const { results } = await env.DB.prepare(
-      "SELECT id, username, name, email, password_hash, role, is_active FROM users WHERE username = ?"
-    ).bind(username).all();
+      `SELECT id, username, name, email, password_hash, role, is_active 
+       FROM users 
+       WHERE (username = ? OR email = ?) AND deleted_at IS NULL`
+    ).bind(username, username).all();
 
     if (results.length === 0) {
       return Response.json(
-        { error: "用户名或密码错误" }, 
+        { error: "账号或密码错误" }, 
         { status: 401 }
       );
     }
@@ -54,7 +56,7 @@ export async function onRequestPost(context) {
     const passwordValid = await verifyPassword(password, user.password_hash);
     if (!passwordValid) {
       return Response.json(
-        { error: "用户名或密码错误" }, 
+        { error: "账号或密码错误" }, 
         { status: 401 }
       );
     }

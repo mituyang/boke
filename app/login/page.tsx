@@ -61,14 +61,15 @@ export default function LoginPage() {
             登录到您的账户
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            管理员账号：admin / admin123456
+            管理员账号：admin / admin123456 <br />
+            <span className="text-xs">支持用户ID或邮箱登录</span>
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="username" className="sr-only">
-                用户名
+                用户ID或邮箱
               </label>
               <input
                 id="username"
@@ -76,7 +77,7 @@ export default function LoginPage() {
                 type="text"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="用户名"
+                placeholder="用户ID或邮箱"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={loading}

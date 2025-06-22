@@ -19,6 +19,7 @@ interface AuthContextType {
   login: (userData: User, userToken?: string) => void;
   logout: () => void;
   checkAuth: () => Promise<void>;
+  updateUser: (userData: User) => void;
   isAdmin: () => boolean;
   isLoggedIn: () => boolean;
 }
@@ -59,6 +60,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken('cookie-based'); // 使用 cookie 认证
   };
 
+  const updateUser = (userData: User) => {
+    setUser(userData);
+  };
+
   const logout = async () => {
     try {
       await fetch('/api/auth/logout', { 
@@ -92,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     logout,
     checkAuth,
+    updateUser,
     isAdmin,
     isLoggedIn,
   };

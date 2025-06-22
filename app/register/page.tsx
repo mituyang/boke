@@ -1,14 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { encryptData } from '../../lib/utils';
 
+// 生成随机用户ID
+function generateRandomUserId() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 8; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return 'user_' + result;
+}
+
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    username: '',
-    name: '',
+    nickname: '',
+    userId: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -17,6 +27,14 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const router = useRouter();
+
+  // 组件挂载时生成随机用户ID
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      userId: generateRandomUserId()
+    }));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,11 +55,18 @@ export default function RegisterPage() {
       return;
     }
 
+    // 验证用户ID格式
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(formData.userId)) {
+      setError('用户ID必须是3-20位字母、数字或下划线');
+      setLoading(false);
+      return;
+    }
+
     try {
       // 加密敏感数据
       const encryptedData = {
-        username: await encryptData(formData.username),
-        name: await encryptData(formData.name),
+        nickname: await encryptData(formData.nickname),
+        userId: await encryptData(formData.userId),
         email: await encryptData(formData.email),
         password: await encryptData(formData.password),
         confirmPassword: await encryptData(formData.confirmPassword),
@@ -81,6 +106,14 @@ export default function RegisterPage() {
     }));
   };
 
+  // 生成新的随机用户ID
+  const generateNewUserId = () => {
+    setFormData(prev => ({
+      ...prev,
+      userId: generateRandomUserId()
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -111,41 +144,52 @@ export default function RegisterPage() {
             )}
             
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                用户名
+              <label htmlFor="nickname" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                昵称
               </label>
               <div className="mt-1">
                 <input
-                  id="username"
-                  name="username"
+                  id="nickname"
+                  name="nickname"
                   type="text"
                   required
-                  value={formData.username}
+                  value={formData.nickname}
                   onChange={handleChange}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="3-20位字母、数字或下划线"
+                  placeholder="请输入昵称"
                   disabled={loading}
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                姓名
+              <label htmlFor="userId" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                用户ID
               </label>
-              <div className="mt-1">
+              <div className="mt-1 flex">
                 <input
-                  id="name"
-                  name="name"
+                  id="userId"
+                  name="userId"
                   type="text"
                   required
-                  value={formData.name}
+                  value={formData.userId}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="请输入真实姓名"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-l-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="3-20位字母、数字或下划线"
                   disabled={loading}
                 />
+                <button
+                  type="button"
+                  onClick={generateNewUserId}
+                  disabled={loading}
+                  className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-600 text-gray-500 dark:text-gray-400 text-sm rounded-r-md hover:bg-gray-100 dark:hover:bg-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                >
+                  🎲
+                </button>
               </div>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                用户ID必须唯一，注册后可在个人资料中修改，点击骰子重新生成
+              </p>
             </div>
 
             <div>
