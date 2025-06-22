@@ -5,14 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// 格式化日期为上海时区 (UTC+8)
+// 格式化日期为上海时区 (UTC+8) - 统一处理
 export function formatDate(date: string | Date): string {
   const d = new Date(date);
   
-  // 转换为上海时区 (UTC+8)
-  const shanghaiTime = new Date(d.getTime() + (8 * 60 * 60 * 1000) - (d.getTimezoneOffset() * 60 * 1000));
-  
-  return shanghaiTime.toLocaleString('zh-CN', {
+  // 直接使用上海时区格式化，不需要手动转换
+  return d.toLocaleString('zh-CN', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -23,11 +21,23 @@ export function formatDate(date: string | Date): string {
   });
 }
 
-// 获取当前上海时区时间的ISO字符串
+// 获取当前上海时区时间的ISO字符串（用于数据库）
 export function getShanghaiTimeISO(): string {
   const now = new Date();
-  const shanghaiTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
+  // 获取上海时区的时间
+  const shanghaiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
   return shanghaiTime.toISOString().replace('Z', '+08:00');
+}
+
+// 简单的日期格式化（仅日期部分）
+export function formatDateOnly(date: string | Date): string {
+  const d = new Date(date);
+  return d.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'Asia/Shanghai'
+  });
 }
 
 // 前端加密函数（用于敏感数据传输）

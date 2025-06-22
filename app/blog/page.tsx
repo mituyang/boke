@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getAllPosts } from '@/lib/posts'
-import { formatDate } from '@/lib/utils'
+import { formatDateOnly } from '@/lib/utils'
 import PostStats from '@/components/PostStats'
 
 export default async function BlogPage() {
@@ -34,7 +34,7 @@ export default async function BlogPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <time dateTime={post.date} className="text-sm text-gray-500">
-                    {formatDate(post.date)}
+                    {formatDateOnly(post.date)}
                   </time>
                   <PostStats postSlug={post.slug} showIncrement={false} />
                 </div>

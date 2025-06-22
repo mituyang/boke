@@ -1,3 +1,11 @@
+// 获取上海时区时间的ISO字符串（用于数据库）
+function getShanghaiTimeISO() {
+  const now = new Date();
+  // 获取上海时区的时间
+  const shanghaiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
+  return shanghaiTime.toISOString().replace('Z', '+08:00');
+}
+
 // 用户登录
 export async function onRequestPost(context) {
   const { env, request } = context;
@@ -60,12 +68,13 @@ export async function onRequestPost(context) {
     
     await env.DB.prepare(
       "INSERT INTO user_sessions (user_id, token_hash, expires_at) VALUES (?, ?, ?)"
-    ).bind(user.id, tokenHash, getShanghaiTimeISO(expiresAt)).run();
+    ).bind(user.id, tokenHash, expiresAt.toISOString()).run();
 
-    // 更新最后登录时间（使用上海时区）
+    // 更新最后登录时间
+    const shanghaiTime = getShanghaiTimeISO();
     await env.DB.prepare(
       "UPDATE users SET last_login = ? WHERE id = ?"
-    ).bind(getShanghaiTimeISO(), user.id).run();
+    ).bind(shanghaiTime, user.id).run();
 
     // 设置 httpOnly cookie
     const response = Response.json({
@@ -150,9 +159,4 @@ function decryptData(encryptedData) {
   }
 }
 
-// 获取上海时区时间的ISO字符串
-function getShanghaiTimeISO(date) {
-  const d = date || new Date();
-  const shanghaiTime = new Date(d.getTime() + (8 * 60 * 60 * 1000));
-  return shanghaiTime.toISOString().replace('Z', '+08:00');
-} 
+ 

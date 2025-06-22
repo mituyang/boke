@@ -81,10 +81,10 @@ export async function onRequestPost(context) {
     // 哈希密码
     const passwordHash = await hashString(password);
 
-    // 创建用户（使用上海时区）
+    // 创建用户
     const result = await env.DB.prepare(
-      "INSERT INTO users (username, name, email, password_hash, role, is_active, created_at) VALUES (?, ?, ?, ?, 'user', TRUE, ?)"
-    ).bind(username, name, email, passwordHash, getShanghaiTimeISO()).run();
+      "INSERT INTO users (username, name, email, password_hash, role, is_active) VALUES (?, ?, ?, ?, 'user', TRUE)"
+    ).bind(username, name, email, passwordHash).run();
 
     return Response.json({
       success: true,
@@ -139,9 +139,4 @@ function decryptData(encryptedData) {
   }
 }
 
-// 获取上海时区时间的ISO字符串
-function getShanghaiTimeISO(date) {
-  const d = date || new Date();
-  const shanghaiTime = new Date(d.getTime() + (8 * 60 * 60 * 1000));
-  return shanghaiTime.toISOString().replace('Z', '+08:00');
-} 
+ 

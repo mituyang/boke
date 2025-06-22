@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getPostBySlug, getAllSlugs } from '@/lib/posts'
-import { formatDate } from '@/lib/utils'
+import { formatDateOnly } from '@/lib/utils'
 import { remark } from 'remark'
 import html from 'remark-html'
 import Comments from '@/components/Comments'
@@ -42,7 +42,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
           <div className="flex items-center space-x-4">
             <time dateTime={post.date}>
-              {formatDate(post.date)}
+              {formatDateOnly(post.date)}
             </time>
             <PostStats postSlug={params.slug} />
           </div>

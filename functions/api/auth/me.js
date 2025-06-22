@@ -46,8 +46,8 @@ async function verifyAuth(request, env) {
       `SELECT u.id, u.username, u.name, u.email, u.role, u.is_active, u.last_login
        FROM users u 
        JOIN user_sessions s ON u.id = s.user_id 
-       WHERE s.token_hash = ? AND s.expires_at > ? AND u.is_active = TRUE`
-    ).bind(tokenHash, getShanghaiTimeISO()).all();
+       WHERE s.token_hash = ? AND s.expires_at > datetime('now') AND u.is_active = TRUE`
+    ).bind(tokenHash).all();
 
     if (results.length === 0) return null;
 
@@ -81,9 +81,3 @@ async function hashString(str) {
   return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-// 获取上海时区时间的ISO字符串
-function getShanghaiTimeISO(date) {
-  const d = date || new Date();
-  const shanghaiTime = new Date(d.getTime() + (8 * 60 * 60 * 1000));
-  return shanghaiTime.toISOString().replace('Z', '+08:00');
-}

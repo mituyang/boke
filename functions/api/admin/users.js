@@ -1,3 +1,11 @@
+// 获取上海时区时间的ISO字符串（用于数据库）
+function getShanghaiTimeISO() {
+  const now = new Date();
+  // 获取上海时区的时间
+  const shanghaiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
+  return shanghaiTime.toISOString().replace('Z', '+08:00');
+}
+
 // 获取所有用户（管理员）
 export async function onRequestGet(context) {
   const { env, request } = context;
@@ -101,8 +109,9 @@ export async function onRequestPut(context) {
     }
 
     // 添加更新时间
+    const shanghaiTime = getShanghaiTimeISO();
     updates.push('updated_at = ?');
-    values.push(getShanghaiTimeISO());
+    values.push(shanghaiTime);
     values.push(userId);
 
     const sql = `UPDATE users SET ${updates.join(', ')} WHERE id = ?`;
@@ -186,9 +195,9 @@ async function verifyAdminAuth(request, env) {
       `SELECT u.id, u.username, u.name, u.email, u.role, u.is_active
        FROM users u 
        JOIN user_sessions s ON u.id = s.user_id 
-       WHERE s.token_hash = ? AND s.expires_at > ? 
+       WHERE s.token_hash = ? AND s.expires_at > datetime('now') 
          AND u.is_active = TRUE AND u.role = 'admin'`
-    ).bind(tokenHash, getShanghaiTimeISO()).all();
+    ).bind(tokenHash).all();
 
     if (results.length === 0) return null;
 
@@ -222,9 +231,4 @@ async function hashString(str) {
   return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-// 获取上海时区时间的ISO字符串
-function getShanghaiTimeISO(date) {
-  const d = date || new Date();
-  const shanghaiTime = new Date(d.getTime() + (8 * 60 * 60 * 1000));
-  return shanghaiTime.toISOString().replace('Z', '+08:00');
-} 
+ 

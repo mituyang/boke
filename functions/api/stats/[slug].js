@@ -1,3 +1,11 @@
+// 获取上海时区时间的ISO字符串（用于数据库）
+function getShanghaiTimeISO() {
+  const now = new Date();
+  // 获取上海时区的时间
+  const shanghaiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
+  return shanghaiTime.toISOString().replace('Z', '+08:00');
+}
+
 // 获取和更新文章统计信息
 export async function onRequestGet(context) {
   const { params, env } = context;
@@ -33,18 +41,20 @@ export async function onRequestPost(context) {
   const slug = params.slug;
 
   try {
+    const shanghaiTime = getShanghaiTimeISO();
+    
     // 增加浏览量
     await env.DB.prepare(
-      `INSERT INTO post_stats (post_slug, view_count, comment_count) 
-       VALUES (?, 1, 0) 
+      `INSERT INTO post_stats (post_slug, view_count, comment_count, updated_at) 
+       VALUES (?, 1, 0, ?) 
        ON CONFLICT(post_slug) 
-       DO UPDATE SET view_count = view_count + 1, updated_at = CURRENT_TIMESTAMP`
-    ).bind(slug).run();
+       DO UPDATE SET view_count = view_count + 1, updated_at = ?`
+    ).bind(slug, shanghaiTime, shanghaiTime).run();
 
     // 更新网站总访问量
     await env.DB.prepare(
-      "UPDATE site_stats SET total_visits = total_visits + 1, updated_at = CURRENT_TIMESTAMP"
-    ).run();
+      "UPDATE site_stats SET total_visits = total_visits + 1, updated_at = ?"
+    ).bind(shanghaiTime).run();
 
     // 返回更新后的统计
     const { results } = await env.DB.prepare(
