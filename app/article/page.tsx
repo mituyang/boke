@@ -44,7 +44,11 @@ function ArticleContent() {
   // 获取用户文章详情
   const fetchUserPost = async (slug: string) => {
     try {
-      const response = await fetch(`/api/user-posts/${slug}`);
+      // 对slug进行URL编码以处理特殊字符
+      const encodedSlug = encodeURIComponent(slug);
+      const response = await fetch(`/api/user-posts/${encodedSlug}`, {
+        credentials: 'include' // 包含Cookie认证
+      });
       const data = await response.json();
       
       if (data.success) {
@@ -58,6 +62,8 @@ function ArticleContent() {
       console.error('获取文章失败:', error);
       setError('加载文章失败');
       setUserPost(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -101,6 +107,8 @@ function ArticleContent() {
       console.error('获取静态文章失败:', error);
       setError('加载文章失败');
       setStaticPost(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -118,8 +126,6 @@ function ArticleContent() {
     } else {
       fetchUserPost(slug);
     }
-    
-    setLoading(false);
   }, [slug, type]);
 
   // 格式化日期

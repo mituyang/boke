@@ -8,27 +8,60 @@ function getShanghaiTimeISO() {
   return shanghaiTime.toISOString().replace('T', ' ').substring(0, 19);
 }
 
-// 验证用户token
+// 从 cookie 字符串中提取指定的值
+function getCookieValue(cookieString, name) {
+  if (!cookieString) return null;
+  
+  const cookies = cookieString.split(';');
+  for (let cookie of cookies) {
+    const [cookieName, cookieValue] = cookie.trim().split('=');
+    if (cookieName === name) {
+      return cookieValue;
+    }
+  }
+  return null;
+}
+
+// 哈希函数
+async function hashString(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hash));
+  return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+// 验证用户token（使用cookie认证）
 async function verifyUser(request, env) {
-  const authHeader = request.headers.get('Authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  try {
+    // 获取 token
+    const authToken = getCookieValue(request.headers.get('cookie'), 'auth-token');
+    if (!authToken) return null;
+
+    // 检查会话是否存在且有效
+    const tokenHash = await hashString(authToken);
+    const { results } = await env.DB.prepare(
+      `SELECT u.id, u.username, u.name, u.email, u.role, u.is_active
+       FROM users u 
+       JOIN user_sessions s ON u.id = s.user_id 
+       WHERE s.token_hash = ? AND s.expires_at > datetime('now') 
+         AND u.is_active = TRUE AND u.deleted_at IS NULL`
+    ).bind(tokenHash).all();
+
+    if (results.length === 0) return null;
+
+    return results[0];
+  } catch (error) {
+    console.error('Auth verification error:', error);
     return null;
   }
-
-  const token = authHeader.substring(7);
-  const user = await env.DB.prepare(`
-    SELECT u.id, u.username, u.name, u.role, u.is_active, u.deleted_at 
-    FROM users u 
-    JOIN user_sessions s ON u.id = s.user_id 
-    WHERE s.token = ? AND u.is_active = 1 AND u.deleted_at IS NULL
-  `).bind(token).first();
-
-  return user;
 }
 
 export async function onRequest(context) {
   const { request, env, params } = context;
-  const { slug } = params;
+  const { slug: rawSlug } = params;
+  // 对slug进行URL解码以处理特殊字符
+  const slug = decodeURIComponent(rawSlug);
   const method = request.method;
 
   // 设置CORS头
@@ -66,8 +99,24 @@ export async function onRequest(context) {
       }
 
       // 权限检查：已发布的文章所有人可见，草稿只有作者和管理员可见
-      if (post.status !== 'published') {
-        if (!user || (post.author_id !== user.id && user.role !== 'admin' && user.role !== 'super_admin')) {
+      console.log('文章状态:', post.status, '用户:', user ? user.id : 'null');
+      
+      if (post.status === 'published') {
+        // 已发布文章，所有人（包括未登录用户）都可以查看
+        console.log('已发布文章，允许访问');
+      } else if (post.status === 'draft' || post.status === 'deleted') {
+        // 草稿或已删除文章，只有作者和管理员可以查看
+        if (!user) {
+          return new Response(JSON.stringify({
+            success: false,
+            message: '请登录后查看草稿文章'
+          }), {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+        
+        if (post.author_id !== user.id && user.role !== 'admin' && user.role !== 'super_admin') {
           return new Response(JSON.stringify({
             success: false,
             message: '无权限访问此文章'
@@ -76,14 +125,28 @@ export async function onRequest(context) {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           });
         }
+        console.log('草稿文章，用户有权限访问');
+      } else {
+        return new Response(JSON.stringify({
+          success: false,
+          message: '文章状态异常'
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
       }
 
       // 如果是已发布的文章，增加浏览量
       if (post.status === 'published') {
-        await env.DB.prepare(`
-          UPDATE user_posts SET view_count = view_count + 1 WHERE id = ?
-        `).bind(post.id).run();
-        post.view_count = post.view_count + 1;
+        try {
+          await env.DB.prepare(`
+            UPDATE user_posts SET view_count = view_count + 1 WHERE id = ?
+          `).bind(post.id).run();
+          post.view_count = (post.view_count || 0) + 1;
+        } catch (error) {
+          console.error('更新浏览量失败:', error);
+          // 不影响文章显示，继续执行
+        }
       }
 
       return new Response(JSON.stringify({

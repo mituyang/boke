@@ -88,15 +88,25 @@ async function verifyUser(request, env) {
   }
 }
 
-// 生成文章slug
+// 生成文章slug（只使用英文数字，避免中文URL编码问题）
 function generateSlug(title) {
-  return title
+  // 先尝试提取英文字符作为slug
+  let slug = title
     .toLowerCase()
-    .replace(/[^a-z0-9\u4e00-\u9fff\s-]/g, '') // 保留中文、英文、数字、空格、横线
+    .replace(/[^a-z0-9\s-]/g, '') // 只保留英文、数字、空格、横线
     .replace(/\s+/g, '-') // 空格替换为横线
     .replace(/-+/g, '-') // 多个横线替换为一个
     .replace(/^-|-$/g, '') // 去除首尾横线
-    .substring(0, 100); // 限制长度
+    .substring(0, 50); // 限制长度
+  
+  // 如果没有英文字符，生成随机slug
+  if (!slug || slug.length < 2) {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 8);
+    slug = `post-${timestamp}-${random}`;
+  }
+  
+  return slug;
 }
 
 // 生成文章摘要
@@ -123,6 +133,57 @@ export async function onRequest(context) {
 
   try {
     if (method === 'GET') {
+      // 检查是否是获取单篇文章
+      const id = url.searchParams.get('id');
+      if (id) {
+        // 获取单篇文章用于编辑
+        const user = await verifyUser(request, env);
+        if (!user) {
+          return new Response(JSON.stringify({
+            success: false,
+            message: '请先登录'
+          }), {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        const post = await env.DB.prepare(`
+          SELECT up.*, u.username, u.name as author_name
+          FROM user_posts up 
+          JOIN users u ON up.author_id = u.id 
+          WHERE up.id = ? AND u.is_active = 1 AND u.deleted_at IS NULL
+        `).bind(id).first();
+
+        if (!post) {
+          return new Response(JSON.stringify({
+            success: false,
+            message: '文章不存在'
+          }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        // 权限检查：只有作者本人或管理员可以编辑
+        if (post.author_id !== user.id && user.role !== 'admin' && user.role !== 'super_admin') {
+          return new Response(JSON.stringify({
+            success: false,
+            message: '无权限访问此文章'
+          }), {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          post: post
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       // 获取用户文章列表
       const status = url.searchParams.get('status') || 'all';
       const page = parseInt(url.searchParams.get('page')) || 1;
@@ -236,9 +297,7 @@ export async function onRequest(context) {
       }
 
       // 创建新文章
-      const rawBody = await request.text();
-      const body = detectAndDecryptData(rawBody);
-      const data = typeof body === 'string' ? JSON.parse(body) : body;
+      const data = await request.json();
 
       const { title, content, status = 'draft' } = data;
 
@@ -311,9 +370,7 @@ export async function onRequest(context) {
       }
 
       // 更新文章
-      const rawBody = await request.text();
-      const body = detectAndDecryptData(rawBody);
-      const data = typeof body === 'string' ? JSON.parse(body) : body;
+      const data = await request.json();
 
       const { id, title, content, status } = data;
 

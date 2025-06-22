@@ -4,23 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth, withAuth } from '../../components/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-// 简单加密函数
-function simpleEncrypt(data: string, salt: string) {
-  let encrypted = '';
-  const saltBytes = new TextEncoder().encode(salt);
-  const dataBytes = new TextEncoder().encode(data);
-  
-  for (let i = 0; i < dataBytes.length; i++) {
-    encrypted += String.fromCharCode(dataBytes[i] ^ saltBytes[i % saltBytes.length]);
-  }
-  
-  return encrypted;
-}
 
-// 生成随机盐值
-function generateSalt() {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-}
 
 interface UserPost {
   id: number;
@@ -52,7 +36,8 @@ function WritePage() {
     if (!token) return;
 
     try {
-      const response = await fetch(`/api/user-posts/${id}`, {
+      // 先通过ID获取文章的slug
+      const response = await fetch(`/api/user-posts?id=${id}`, {
         credentials: 'include' // 使用 cookie 认证
       });
 
@@ -87,19 +72,12 @@ function WritePage() {
 
     setLoading(true);
     try {
-      const salt = generateSalt();
-      const dataToSend = JSON.stringify({
+      const payload = {
         ...(isEditing && { id: postId }),
         title: formData.title.trim(),
         content: formData.content.trim(),
         status
-      });
-
-      const encryptedData = simpleEncrypt(dataToSend, salt);
-      const payload = JSON.stringify({
-        encrypted: encryptedData,
-        salt: salt
-      });
+      };
 
       const response = await fetch('/api/user-posts', {
         method: isEditing ? 'PUT' : 'POST',
@@ -107,7 +85,7 @@ function WritePage() {
           'Content-Type': 'application/json'
         },
         credentials: 'include', // 使用 cookie 认证
-        body: payload
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
