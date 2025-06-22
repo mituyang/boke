@@ -21,47 +21,10 @@ interface UserPost {
   type: 'user';
 }
 
-interface StaticPost {
-  slug: string;
-  title: string;
-  excerpt: string;
-  date: string;
-  tags?: string[];
-  type: 'static';
-}
-
-type Post = UserPost | StaticPost;
-
-// 静态文章数据（临时方案）
-const STATIC_POSTS: StaticPost[] = [
-  {
-    slug: 'hello-world',
-    title: '欢迎来到我的博客',
-    excerpt: '这是我的第一篇博客文章，欢迎大家来到我的个人博客！在这里我会分享我的学习心得、技术笔记和生活感悟。',
-    date: '2024-01-01',
-    tags: ['欢迎', '博客'],
-    type: 'static'
-  },
-  {
-    slug: 'getting-started-with-nextjs',
-    title: 'Next.js 入门指南',
-    excerpt: 'Next.js 是一个强大的 React 框架，它提供了许多开箱即用的功能，让我们能够快速构建现代化的 Web 应用。本文将带你了解 Next.js 的基础概念和核心特性。',
-    date: '2024-01-02',
-    tags: ['Next.js', 'React', '教程'],
-    type: 'static'
-  },
-  {
-    slug: 'thoughts-on-web-development',
-    title: 'Web 开发的一些思考',
-    excerpt: '在 Web 开发的道路上，我们会遇到各种各样的技术选择和设计决策。本文分享一些我在开发过程中的思考和体会。',
-    date: '2024-01-03',
-    tags: ['Web开发', '思考', '经验'],
-    type: 'static'
-  }
-];
+// 移除静态文章类型定义，只使用用户文章
 
 export default function BlogPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<UserPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'static' | 'user'>('all');
 
@@ -87,16 +50,13 @@ export default function BlogPage() {
   const fetchAllPosts = async () => {
     setLoading(true);
     try {
-      // 使用静态文章数据
-      const staticPosts = STATIC_POSTS;
-
-      // 获取用户文章
+      // 只获取用户文章
       const userPosts = await fetchUserPosts();
 
-      // 合并并按时间排序
-      const allPosts = [...staticPosts, ...userPosts].sort((a, b) => {
-        const dateA = a.type === 'static' ? new Date(a.date) : new Date(a.published_at);
-        const dateB = b.type === 'static' ? new Date(b.date) : new Date(b.published_at);
+      // 按发布时间排序
+      const allPosts = userPosts.sort((a: UserPost, b: UserPost) => {
+        const dateA = new Date(a.published_at);
+        const dateB = new Date(b.published_at);
         return dateB.getTime() - dateA.getTime();
       });
 
@@ -116,23 +76,19 @@ export default function BlogPage() {
   const filteredPosts = posts.filter(post => {
     if (filter === 'all') return true;
     if (filter === 'static') {
-      // 官方文章：包括静态文章和标记为官方的用户文章
-      return post.type === 'static' || (post.type === 'user' && post.is_official);
+      // 官方文章：只包括标记为官方的用户文章
+      return post.is_official;
     }
     if (filter === 'user') {
       // 用户文章：只包括非官方的用户文章
-      return post.type === 'user' && !post.is_official;
+      return !post.is_official;
     }
     return false;
   });
 
   // 格式化日期
-  const formatDate = (post: Post) => {
-    if (post.type === 'static') {
-      return formatDateOnly(post.date);
-    } else {
-      return new Date(post.published_at).toLocaleDateString('zh-CN');
-    }
+  const formatDate = (post: UserPost) => {
+    return new Date(post.published_at).toLocaleDateString('zh-CN');
   };
 
   if (loading) {
@@ -190,17 +146,15 @@ export default function BlogPage() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-2">
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    post.type === 'static' || (post.type === 'user' && post.is_official)
+                    post.is_official
                       ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-400' 
                       : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-400'
                   }`}>
-                    {post.type === 'static' || (post.type === 'user' && post.is_official) ? '官方文章' : '用户文章'}
+                    {post.is_official ? '官方文章' : '用户文章'}
                   </span>
-                  {post.type === 'user' && (
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      作者：{post.author_name}
-                    </span>
-                  )}
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    作者：{post.author_name}
+                  </span>
                 </div>
                 <time className="text-sm text-gray-500 dark:text-gray-400">
                   {formatDate(post)}
@@ -208,7 +162,7 @@ export default function BlogPage() {
               </div>
 
               <Link 
-                href={`/article?slug=${post.slug}&type=${post.type}`} 
+                href={`/article?slug=${post.slug}&type=user`}
                 className="block"
               >
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
@@ -223,27 +177,12 @@ export default function BlogPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <PostStats postSlug={post.slug} showIncrement={false} showLikes={false} />
-                  {post.type === 'user' && (
-                    <LikeButton slug={post.slug} className="text-sm" />
-                  )}
+                  <LikeButton slug={post.slug} className="text-sm" />
                 </div>
-                
-                {post.type === 'static' && post.tags && post.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {post.tags.map((tag) => (
-                      <span 
-                        key={tag}
-                        className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-400 text-xs px-2 py-1 rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
               
               <Link 
-                href={`/article?slug=${post.slug}&type=${post.type}`}
+                href={`/article?slug=${post.slug}&type=user`}
                 className="inline-block mt-4 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
               >
                 阅读全文 →
