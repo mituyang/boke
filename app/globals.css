@@ -10,11 +10,11 @@
 
 @layer components {
   .prose {
-    @apply text-gray-800 leading-relaxed;
+    @apply text-gray-800 dark:text-gray-200 leading-relaxed;
   }
   
   .prose h1, .prose h2, .prose h3, .prose h4 {
-    @apply text-gray-900 font-bold;
+    @apply text-gray-900 dark:text-white font-bold;
   }
   
   .prose h1 {
@@ -42,15 +42,15 @@
   }
   
   .prose blockquote {
-    @apply border-l-4 border-blue-500 pl-4 italic text-gray-600 my-4;
+    @apply border-l-4 border-blue-500 dark:border-blue-400 pl-4 italic text-gray-600 dark:text-gray-400 my-4;
   }
   
   .prose code {
-    @apply bg-gray-100 px-2 py-1 rounded text-sm font-mono;
+    @apply bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2 py-1 rounded text-sm font-mono;
   }
   
   .prose pre {
-    @apply bg-gray-800 text-white p-4 rounded-lg overflow-x-auto my-4;
+    @apply bg-gray-800 dark:bg-gray-900 text-white p-4 rounded-lg overflow-x-auto my-4;
   }
   
   .prose pre code {

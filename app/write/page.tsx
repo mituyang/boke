@@ -174,22 +174,22 @@ function WritePage() {
   }, [editId, token]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 页面头部 */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                 {isEditing ? '编辑文章' : '写文章'}
               </h1>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-gray-600 dark:text-gray-400">
                 {isEditing ? '修改您的文章' : '分享您的想法和知识'}
               </p>
             </div>
             <button
               onClick={() => router.push('/my-posts')}
-              className="text-gray-600 hover:text-gray-800"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white"
             >
               返回我的文章
             </button>
@@ -197,7 +197,7 @@ function WritePage() {
         </div>
 
         {/* 文章表单 */}
-        <div className="bg-white rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div className="p-6">
             {/* 标题输入 */}
             <div className="mb-6">

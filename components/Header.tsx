@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from './AuthContext'
+import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
   const { user, logout, isAdmin, isLoggedIn } = useAuth();
@@ -23,15 +24,15 @@ export default function Header() {
   // 获取链接样式
   const getLinkStyle = (href: string) => {
     return isCurrentPage(href)
-      ? "text-blue-600 font-medium transition-colors"
-      : "text-gray-600 hover:text-gray-900 transition-colors";
+      ? "text-blue-600 dark:text-blue-400 font-medium transition-colors"
+      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors";
   };
 
   return (
-    <header className="bg-white shadow-sm border-b">
+    <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
       <nav className="container mx-auto px-4 py-4 max-w-4xl">
         <div className="flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
+          <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
             我的博客
           </Link>
           
@@ -68,20 +69,23 @@ export default function Header() {
               </Link>
             )}
             
+            {/* 主题切换按钮 */}
+            <ThemeToggle />
+            
             {/* 用户认证状态 */}
             {isLoggedIn() ? (
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-300">
                   欢迎，{user?.name}
                   {isAdmin() && (
-                    <span className="ml-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                    <span className="ml-1 px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">
                       管理员
                     </span>
                   )}
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="text-gray-600 hover:text-red-600 transition-colors"
+                  className="text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                 >
                   登出
                 </button>
@@ -90,13 +94,13 @@ export default function Header() {
               <div className="space-x-2">
                 <Link 
                   href="/login" 
-                  className="text-gray-600 hover:text-blue-600 transition-colors"
+                  className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   登录
                 </Link>
                 <Link 
                   href="/register" 
-                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"
+                  className="bg-blue-600 dark:bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
                 >
                   注册
                 </Link>

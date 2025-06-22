@@ -138,7 +138,7 @@ export default function BlogPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     );
   }
@@ -148,7 +148,7 @@ export default function BlogPage() {
       {/* 页面标题和过滤器 */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             所有文章
           </h1>
           <div className="flex space-x-2">
@@ -162,8 +162,8 @@ export default function BlogPage() {
                 onClick={() => setFilter(item.key as any)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   filter === item.key
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                    ? 'bg-blue-600 dark:bg-blue-700 text-white'
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600'
                 }`}
               >
                 {item.label}
@@ -172,37 +172,37 @@ export default function BlogPage() {
           </div>
         </div>
         
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           发现有趣的内容 • 共 {filteredPosts.length} 篇文章
         </p>
       </div>
 
       {filteredPosts.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-600 text-lg">暂时还没有文章</p>
-          <p className="text-gray-500 mt-2">请稍后再来查看</p>
+          <p className="text-gray-600 dark:text-gray-400 text-lg">暂时还没有文章</p>
+          <p className="text-gray-500 dark:text-gray-500 mt-2">请稍后再来查看</p>
         </div>
       ) : (
         <div className="space-y-8">
           {filteredPosts.map((post) => (
-            <article key={`${post.type}-${post.slug}`} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+            <article key={`${post.type}-${post.slug}`} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
               {/* 文章类型标识 */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-2">
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
                     post.type === 'static' || (post.type === 'user' && post.is_official)
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-blue-100 text-blue-800'
+                      ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-400' 
+                      : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-400'
                   }`}>
                     {post.type === 'static' || (post.type === 'user' && post.is_official) ? '官方文章' : '用户文章'}
                   </span>
                   {post.type === 'user' && (
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       作者：{post.author_name}
                     </span>
                   )}
                 </div>
-                <time className="text-sm text-gray-500">
+                <time className="text-sm text-gray-500 dark:text-gray-400">
                   {formatDate(post)}
                 </time>
               </div>
@@ -211,12 +211,12 @@ export default function BlogPage() {
                 href={`/article?slug=${post.slug}&type=${post.type}`} 
                 className="block"
               >
-                <h2 className="text-2xl font-semibold text-gray-900 mb-3 hover:text-blue-600 transition-colors">
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   {post.title}
                 </h2>
               </Link>
               
-              <p className="text-gray-600 mb-4 leading-relaxed">
+              <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
                 {post.excerpt}
               </p>
               
@@ -233,7 +233,7 @@ export default function BlogPage() {
                     {post.tags.map((tag) => (
                       <span 
                         key={tag}
-                        className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
+                        className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-400 text-xs px-2 py-1 rounded-full"
                       >
                         {tag}
                       </span>
@@ -244,7 +244,7 @@ export default function BlogPage() {
               
               <Link 
                 href={`/article?slug=${post.slug}&type=${post.type}`}
-                className="inline-block mt-4 text-blue-600 hover:text-blue-800 font-medium"
+                className="inline-block mt-4 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
               >
                 阅读全文 →
               </Link>

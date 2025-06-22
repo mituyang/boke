@@ -155,20 +155,20 @@ function ArticleContent() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     );
   }
 
   if (error || (!userPost && !staticPost)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">文章不存在</h2>
-          <p className="text-gray-600 mb-4">{error || '请检查链接是否正确'}</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-md w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">文章不存在</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{error || '请检查链接是否正确'}</p>
           <Link
             href="/blog"
-            className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="inline-block bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-700 dark:hover:bg-blue-600"
           >
             返回博客列表
           </Link>
@@ -181,20 +181,20 @@ function ArticleContent() {
   const isUserPost = !!userPost;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* 文章头部 */}
-      <div className="bg-white shadow-sm">
+      <div className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-4">
             <Link 
               href="/blog" 
-              className="text-blue-600 hover:text-blue-800 text-sm"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm"
             >
               ← 返回博客列表
             </Link>
           </div>
           
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             {post!.title}
           </h1>
           
