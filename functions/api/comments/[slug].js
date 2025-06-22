@@ -16,7 +16,7 @@ export async function onRequestGet(context) {
       `SELECT c.id, u.name as user_name, u.username, c.content, c.created_at, c.parent_id 
        FROM comments c
        JOIN users u ON c.user_id = u.id
-       WHERE c.post_slug = ? AND c.is_approved = TRUE 
+       WHERE c.post_slug = ? AND c.is_approved = TRUE AND u.is_active = TRUE AND u.deleted_at IS NULL
        ORDER BY c.created_at ASC`
     ).bind(slug).all();
 
@@ -134,7 +134,8 @@ async function verifyAuth(request, env) {
       `SELECT u.id, u.username, u.name, u.email, u.role, u.is_active
        FROM users u 
        JOIN user_sessions s ON u.id = s.user_id 
-       WHERE s.token_hash = ? AND s.expires_at > datetime('now') AND u.is_active = TRUE`
+       WHERE s.token_hash = ? AND s.expires_at > datetime('now') 
+         AND u.is_active = TRUE AND u.deleted_at IS NULL`
     ).bind(tokenHash).all();
 
     if (results.length === 0) return null;

@@ -12,6 +12,7 @@ interface User {
   is_active: boolean;
   last_login?: string;
   created_at: string;
+  deleted_at?: string;
 }
 
 interface Stats {
@@ -157,6 +158,39 @@ function AdminPage() {
     }
   };
 
+  const syncCommentCounts = async () => {
+    if (!confirm('确定要同步评论数量吗？这将检查并修正所有文章的评论统计数据。')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/sync-comments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        if (data.updates.length === 0) {
+          alert('所有评论数量统计都是准确的，无需更新。');
+        } else {
+          alert(`${data.message}\n\n更新详情：\n${data.updates.map((u: any) => 
+            `• ${u.post_slug}: ${u.old_count} → ${u.new_count} (${u.action})`
+          ).join('\n')}`);
+        }
+        fetchData(); // 重新获取数据
+      } else {
+        alert(data.error || '同步失败');
+      }
+    } catch (error) {
+      console.error('同步评论数量失败:', error);
+      alert('同步失败');
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -201,7 +235,15 @@ function AdminPage() {
       {/* 网站统计 */}
       {stats && (
         <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">网站统计</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">网站统计</h2>
+            <button
+              onClick={syncCommentCounts}
+              className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+            >
+              同步评论数量
+            </button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-blue-50 p-4 rounded-lg">
               <div className="text-2xl font-bold text-blue-600">{stats.site.total_visits}</div>
@@ -282,7 +324,11 @@ function AdminPage() {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {user.id !== currentUser?.id ? (
+                    {user.deleted_at ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        已删除
+                      </span>
+                    ) : user.id !== currentUser?.id ? (
                       <button
                         onClick={() => updateUserStatus(user.id, !user.is_active)}
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -303,7 +349,7 @@ function AdminPage() {
                     {user.last_login ? formatDate(user.last_login) : '从未登录'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    {isSuperAdmin && user.id !== currentUser?.id && user.username !== 'admin' ? (
+                    {isSuperAdmin && user.id !== currentUser?.id && user.username !== 'admin' && !user.deleted_at ? (
                       <button
                         onClick={() => deleteUser(user.id, user.username)}
                         className="text-red-600 hover:text-red-900"

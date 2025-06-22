@@ -32,7 +32,8 @@ export default function Comments({ postSlug }: CommentsProps) {
 
   const fetchComments = async () => {
     try {
-      const response = await fetch(`/api/comments/${postSlug}`);
+      // 添加时间戳防止缓存
+      const response = await fetch(`/api/comments/${postSlug}?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         setComments(data);
@@ -76,6 +77,8 @@ export default function Comments({ postSlug }: CommentsProps) {
         setContent('');
         // 重新获取评论列表
         fetchComments();
+        // 触发统计更新事件
+        window.dispatchEvent(new CustomEvent(`comment-updated-${postSlug}`));
       } else {
         setMessage(result.error || '评论发表失败');
       }
@@ -84,6 +87,18 @@ export default function Comments({ postSlug }: CommentsProps) {
     }
 
     setSubmitting(false);
+  };
+
+  // 递归计算总评论数（包括回复）
+  const getTotalCommentCount = (comments: Comment[]): number => {
+    let count = 0;
+    comments.forEach(comment => {
+      count += 1; // 当前评论
+      if (comment.replies && comment.replies.length > 0) {
+        count += getTotalCommentCount(comment.replies); // 递归计算回复数量
+      }
+    });
+    return count;
   };
 
   // 渲染单个评论
@@ -117,7 +132,7 @@ export default function Comments({ postSlug }: CommentsProps) {
   return (
     <div className="mt-12">
       <h3 className="text-2xl font-bold text-gray-900 mb-6">
-        评论 ({comments.length})
+        评论 ({getTotalCommentCount(comments)})
       </h3>
 
       {/* 评论表单 */}
@@ -200,7 +215,7 @@ export default function Comments({ postSlug }: CommentsProps) {
           <div className="text-center py-8">
             <div className="text-gray-600">正在加载评论...</div>
           </div>
-        ) : comments.length > 0 ? (
+        ) : getTotalCommentCount(comments) > 0 ? (
           <div className="space-y-4">
             {comments.map(comment => renderComment(comment))}
           </div>

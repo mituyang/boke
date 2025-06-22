@@ -33,6 +33,18 @@ export default function Header() {
               联系
             </Link>
             
+            {/* 登录用户可以看到写文章和我的文章 */}
+            {isLoggedIn() && (
+              <>
+                <Link href="/write" className="text-blue-600 hover:text-blue-800 transition-colors font-medium">
+                  写文章
+                </Link>
+                <Link href="/my-posts" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  我的文章
+                </Link>
+              </>
+            )}
+            
             {/* 管理员才能看到管理链接 */}
             {isAdmin() && (
               <Link href="/admin" className="text-gray-600 hover:text-gray-900 transition-colors">

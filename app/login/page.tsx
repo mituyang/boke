@@ -28,6 +28,7 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保接收 cookies
         body: JSON.stringify({
           username: encryptedUsername,
           password: encryptedPassword,

@@ -20,9 +20,9 @@ export async function onRequestGet(context) {
       );
     }
 
-    // 获取所有用户列表
+    // 获取所有用户列表（包括已删除用户）
     const { results } = await env.DB.prepare(
-      `SELECT id, username, name, email, role, is_active, last_login, created_at 
+      `SELECT id, username, name, email, role, is_active, last_login, created_at, deleted_at 
        FROM users 
        ORDER BY created_at DESC`
     ).all();
@@ -163,10 +163,12 @@ export async function onRequestDelete(context) {
       );
     }
 
-    // 删除用户（级联删除相关数据）
+    // 软删除用户（标记为已删除，但保留记录）
+    const shanghaiTime = getShanghaiTimeISO();
     await env.DB.prepare("DELETE FROM user_sessions WHERE user_id = ?").bind(userId).run();
-    await env.DB.prepare("DELETE FROM comments WHERE user_id = ?").bind(userId).run();
-    await env.DB.prepare("DELETE FROM users WHERE id = ?").bind(userId).run();
+    await env.DB.prepare(
+      "UPDATE users SET deleted_at = ?, is_active = 0, updated_at = ? WHERE id = ?"
+    ).bind(shanghaiTime, shanghaiTime, userId).run();
 
     return Response.json({
       success: true,
@@ -196,7 +198,7 @@ async function verifyAdminAuth(request, env) {
        FROM users u 
        JOIN user_sessions s ON u.id = s.user_id 
        WHERE s.token_hash = ? AND s.expires_at > datetime('now') 
-         AND u.is_active = TRUE AND u.role = 'admin'`
+         AND u.is_active = TRUE AND u.role = 'admin' AND u.deleted_at IS NULL`
     ).bind(tokenHash).all();
 
     if (results.length === 0) return null;

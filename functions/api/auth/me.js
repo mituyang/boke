@@ -46,7 +46,8 @@ async function verifyAuth(request, env) {
       `SELECT u.id, u.username, u.name, u.email, u.role, u.is_active, u.last_login
        FROM users u 
        JOIN user_sessions s ON u.id = s.user_id 
-       WHERE s.token_hash = ? AND s.expires_at > datetime('now') AND u.is_active = TRUE`
+       WHERE s.token_hash = ? AND s.expires_at > datetime('now') 
+         AND u.is_active = TRUE AND u.deleted_at IS NULL`
     ).bind(tokenHash).all();
 
     if (results.length === 0) return null;

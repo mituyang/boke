@@ -14,8 +14,9 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   loading: boolean;
-  login: (userData: User) => void;
+  login: (userData: User, userToken?: string) => void;
   logout: () => void;
   checkAuth: () => Promise<void>;
   isAdmin: () => boolean;
@@ -26,36 +27,49 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/me');
+      // 使用 Cookie 认证，无需手动传递 token
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include' // 确保发送 cookies
+      });
+      
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
+        setToken('cookie-based'); // 标记使用 cookie 认证
       } else {
         setUser(null);
+        setToken(null);
       }
     } catch (error) {
       console.error('Auth check failed:', error);
       setUser(null);
+      setToken(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const login = (userData: User) => {
+  const login = (userData: User, userToken?: string) => {
     setUser(userData);
+    setToken('cookie-based'); // 使用 cookie 认证
   };
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include' // 确保发送 cookies
+      });
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
       setUser(null);
+      setToken(null);
     }
   };
 
@@ -73,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = {
     user,
+    token,
     loading,
     login,
     logout,

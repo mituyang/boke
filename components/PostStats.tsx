@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import LikeButton from './LikeButton';
 
 interface Stats {
   view_count: number;
@@ -9,9 +10,10 @@ interface Stats {
 interface PostStatsProps {
   postSlug: string;
   showIncrement?: boolean;
+  showLikes?: boolean;
 }
 
-export default function PostStats({ postSlug, showIncrement = true }: PostStatsProps) {
+export default function PostStats({ postSlug, showIncrement = true, showLikes = true }: PostStatsProps) {
   const [stats, setStats] = useState<Stats>({ view_count: 0, comment_count: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -23,9 +25,23 @@ export default function PostStats({ postSlug, showIncrement = true }: PostStatsP
     }
   }, [postSlug]);
 
+  // 监听评论更新事件
+  useEffect(() => {
+    const handleCommentUpdate = () => {
+      fetchStats(); // 重新获取统计数据
+    };
+
+    window.addEventListener(`comment-updated-${postSlug}`, handleCommentUpdate);
+    
+    return () => {
+      window.removeEventListener(`comment-updated-${postSlug}`, handleCommentUpdate);
+    };
+  }, [postSlug]);
+
   const fetchStats = async () => {
     try {
-      const response = await fetch(`/api/stats/${postSlug}`);
+      // 添加时间戳防止缓存
+      const response = await fetch(`/api/stats/${postSlug}?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         setStats(data);
@@ -68,6 +84,9 @@ export default function PostStats({ postSlug, showIncrement = true }: PostStatsP
         <span>💬</span>
         <span>{stats.comment_count} 条评论</span>
       </div>
+      {showLikes && (
+        <LikeButton slug={postSlug} className="text-sm" />
+      )}
     </div>
   );
 } 
