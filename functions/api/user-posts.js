@@ -122,23 +122,58 @@ export async function onRequest(context) {
   }
 
   try {
-    const user = await verifyUser(request, env);
-    if (!user) {
-      return new Response(JSON.stringify({
-        success: false,
-        message: '请先登录'
-      }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
     if (method === 'GET') {
       // 获取用户文章列表
       const status = url.searchParams.get('status') || 'all';
       const page = parseInt(url.searchParams.get('page')) || 1;
       const limit = parseInt(url.searchParams.get('limit')) || 10;
       const offset = (page - 1) * limit;
+
+      // 如果是获取已发布文章，不需要登录验证（用于首页显示）
+      if (status === 'published') {
+        let query = `
+          SELECT up.*, u.username, u.name as author_name
+          FROM user_posts up 
+          JOIN users u ON up.author_id = u.id 
+          WHERE u.is_active = 1 AND u.deleted_at IS NULL
+            AND up.status = 'published'
+          ORDER BY up.created_at DESC LIMIT ? OFFSET ?
+        `;
+        
+        let countQuery = `
+          SELECT COUNT(*) as total
+          FROM user_posts up 
+          JOIN users u ON up.author_id = u.id 
+          WHERE u.is_active = 1 AND u.deleted_at IS NULL
+            AND up.status = 'published'
+        `;
+
+        const posts = await env.DB.prepare(query).bind(limit, offset).all();
+        const totalResult = await env.DB.prepare(countQuery).first();
+
+        return new Response(JSON.stringify({
+          success: true,
+          posts: posts.results || [],
+          total: totalResult.total,
+          page: page,
+          limit: limit,
+          totalPages: Math.ceil(totalResult.total / limit)
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      // 其他请求需要登录验证
+      const user = await verifyUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({
+          success: false,
+          message: '请先登录'
+        }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
 
       let query = `
         SELECT up.*, u.username, u.name as author_name
@@ -188,6 +223,18 @@ export async function onRequest(context) {
       });
 
     } else if (method === 'POST') {
+      // POST方法需要登录验证
+      const user = await verifyUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({
+          success: false,
+          message: '请先登录'
+        }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       // 创建新文章
       const rawBody = await request.text();
       const body = detectAndDecryptData(rawBody);
@@ -251,6 +298,18 @@ export async function onRequest(context) {
       });
 
     } else if (method === 'PUT') {
+      // PUT方法需要登录验证
+      const user = await verifyUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({
+          success: false,
+          message: '请先登录'
+        }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       // 更新文章
       const rawBody = await request.text();
       const body = detectAndDecryptData(rawBody);
@@ -332,6 +391,18 @@ export async function onRequest(context) {
       });
 
     } else if (method === 'DELETE') {
+      // DELETE方法需要登录验证
+      const user = await verifyUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({
+          success: false,
+          message: '请先登录'
+        }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       // 删除文章
       const url = new URL(request.url);
       const id = url.searchParams.get('id');

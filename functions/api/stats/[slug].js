@@ -57,24 +57,21 @@ async function getCurrentUser(request, env) {
   }
 }
 
-// 检查是否应该计算此次访问
+// 检查是否应该计算此次访问（只有登录用户的访问才计算）
 async function shouldCountView(env, postSlug, user, userIP, currentTime) {
   try {
-    const userId = user ? user.id : null;
-    
-    // 查询现有访问记录
-    let query, bindings;
-    if (userId) {
-      // 登录用户：优先按用户ID查询
-      query = `SELECT view_count, last_viewed_at FROM view_records 
-               WHERE post_slug = ? AND user_id = ?`;
-      bindings = [postSlug, userId];
-    } else {
-      // 未登录用户：按IP地址查询
-      query = `SELECT view_count, last_viewed_at FROM view_records 
-               WHERE post_slug = ? AND user_ip = ? AND user_id IS NULL`;
-      bindings = [postSlug, userIP];
+    // 如果用户未登录，直接返回 false，不计算浏览量
+    if (!user) {
+      console.log('未登录用户访问，不计算浏览量');
+      return false;
     }
+    
+    const userId = user.id;
+    
+    // 登录用户：按用户ID查询访问记录
+    const query = `SELECT view_count, last_viewed_at FROM view_records 
+                   WHERE post_slug = ? AND user_id = ?`;
+    const bindings = [postSlug, userId];
     
     const { results } = await env.DB.prepare(query).bind(...bindings).all();
 
@@ -105,18 +102,10 @@ async function shouldCountView(env, postSlug, user, userIP, currentTime) {
     }
 
     // 更新访问记录
-    let updateQuery, updateBindings;
-    if (userId) {
-      updateQuery = `UPDATE view_records 
-                     SET view_count = view_count + 1, last_viewed_at = ? 
-                     WHERE post_slug = ? AND user_id = ?`;
-      updateBindings = [currentTime, postSlug, userId];
-    } else {
-      updateQuery = `UPDATE view_records 
-                     SET view_count = view_count + 1, last_viewed_at = ? 
-                     WHERE post_slug = ? AND user_ip = ? AND user_id IS NULL`;
-      updateBindings = [currentTime, postSlug, userIP];
-    }
+    const updateQuery = `UPDATE view_records 
+                         SET view_count = view_count + 1, last_viewed_at = ? 
+                         WHERE post_slug = ? AND user_id = ?`;
+    const updateBindings = [currentTime, postSlug, userId];
     
     await env.DB.prepare(updateQuery).bind(...updateBindings).run();
 
