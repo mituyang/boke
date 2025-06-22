@@ -1,5 +1,12 @@
 import { getUserFromToken } from '../auth/me.js';
 
+// 获取上海时区时间
+function getShanghaiTimeISO() {
+  const now = new Date();
+  const shanghaiTime = new Date(now.getTime() + (8 * 60 * 60 * 1000)); // UTC+8
+  return shanghaiTime.toISOString().replace('T', ' ').substring(0, 19);
+}
+
 export async function onRequestPost(context) {
   try {
     const { request, env, params } = context;
@@ -85,14 +92,16 @@ export async function onRequestPost(context) {
       ]);
 
       // 创建关注通知
+      const currentTime = getShanghaiTimeISO();
       await env.DB.prepare(`
-        INSERT INTO notifications (user_id, type, title, content, source_user_id)
-        VALUES (?, 'follow', ?, ?, ?)
+        INSERT INTO notifications (user_id, type, title, content, source_user_id, created_at)
+        VALUES (?, 'follow', ?, ?, ?, ?)
       `).bind(
         targetUserResult.id,
         '新关注',
         `${currentUser.user.display_name || currentUser.user.username} 关注了你`,
-        currentUser.user.id
+        currentUser.user.id,
+        currentTime
       ).run();
 
       return new Response(JSON.stringify({

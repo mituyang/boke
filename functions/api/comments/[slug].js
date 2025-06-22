@@ -150,9 +150,9 @@ export async function onRequestPost(context) {
         if (notificationTargets.length > 0) {
           const notificationInserts = notificationTargets.map(target =>
                          env.DB.prepare(`
-               INSERT INTO notifications (user_id, type, title, content, source_user_id, source_post_slug)
-               VALUES (?, 'comment', ?, ?, ?, ?)
-             `).bind(target.userId, target.title, target.content, user.id, decodedSlug)
+               INSERT INTO notifications (user_id, type, title, content, source_user_id, source_post_slug, created_at)
+               VALUES (?, 'comment', ?, ?, ?, ?, ?)
+             `).bind(target.userId, target.title, target.content, user.id, decodedSlug, shanghaiTime)
           );
 
           await env.DB.batch(notificationInserts);

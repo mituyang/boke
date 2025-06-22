@@ -225,14 +225,15 @@ export async function onRequest(context) {
           // 如果文章作者存在且不是自己点赞自己的文章，创建通知
           if (postAuthor && postAuthor.author_id !== user.id) {
             await env.DB.prepare(`
-              INSERT INTO notifications (user_id, type, title, content, source_user_id, source_post_slug)
-              VALUES (?, 'like', ?, ?, ?, ?)
+              INSERT INTO notifications (user_id, type, title, content, source_user_id, source_post_slug, created_at)
+              VALUES (?, 'like', ?, ?, ?, ?, ?)
             `).bind(
               postAuthor.author_id,
               '文章获得点赞',
               `${user.name || user.username} 点赞了你的文章《${postAuthor.title}》`,
               user.id,
-              decodedSlug
+              decodedSlug,
+              currentTime
             ).run();
           }
         } catch (notificationError) {
