@@ -211,6 +211,35 @@ export async function onRequest(context) {
           UPDATE site_stats SET total_likes = total_likes + 1
         `).run();
 
+        // 获取文章作者信息并创建点赞通知
+        try {
+          // 对slug进行URL解码，处理中文slug
+          const decodedSlug = decodeURIComponent(slug);
+          const postAuthor = await env.DB.prepare(`
+            SELECT p.author_id, p.title, u.username, u.name as display_name
+            FROM user_posts p
+            JOIN users u ON p.author_id = u.id
+            WHERE p.slug = ? AND u.deleted_at IS NULL
+          `).bind(decodedSlug).first();
+
+          // 如果文章作者存在且不是自己点赞自己的文章，创建通知
+          if (postAuthor && postAuthor.author_id !== user.id) {
+            await env.DB.prepare(`
+              INSERT INTO notifications (user_id, type, title, content, source_user_id, source_post_slug)
+              VALUES (?, 'like', ?, ?, ?, ?)
+            `).bind(
+              postAuthor.author_id,
+              '文章获得点赞',
+              `${user.name || user.username} 点赞了你的文章《${postAuthor.title}》`,
+              user.id,
+              decodedSlug
+            ).run();
+          }
+        } catch (notificationError) {
+          console.error('创建点赞通知失败:', notificationError);
+          // 通知失败不影响点赞功能
+        }
+
         return new Response(JSON.stringify({
           success: true,
           action: 'liked',

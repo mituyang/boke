@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from './AuthContext'
 import ThemeToggle from './ThemeToggle'
+import NotificationBell from './NotificationBell'
 
 export default function Header() {
   const { user, logout, isAdmin, isLoggedIn } = useAuth();
@@ -68,6 +69,9 @@ export default function Header() {
                 管理
               </Link>
             )}
+            
+            {/* 通知铃铛 */}
+            <NotificationBell />
             
             {/* 主题切换按钮 */}
             <ThemeToggle />

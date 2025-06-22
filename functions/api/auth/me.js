@@ -60,6 +60,30 @@ async function verifyAuth(request, env) {
   }
 }
 
+// 导出getUserFromToken函数供其他API使用
+export async function getUserFromToken(request, env) {
+  const user = await verifyAuth(request, env);
+  if (!user) {
+    return {
+      success: false,
+      message: '未登录或会话已过期'
+    };
+  }
+  
+  return {
+    success: true,
+    user: {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      display_name: user.name, // 兼容字段
+      email: user.email,
+      role: user.role,
+      is_active: user.is_active
+    }
+  };
+}
+
 // 从 cookie 字符串中提取指定的值
 function getCookieValue(cookieString, name) {
   if (!cookieString) return null;

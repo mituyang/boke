@@ -102,6 +102,66 @@ export async function onRequestPost(context) {
         "UPDATE site_stats SET total_comments = total_comments + 1, updated_at = ?"
       ).bind(shanghaiTime).run();
 
+      // 创建评论通知
+      try {
+        let notificationTargets = [];
+
+        if (parent_id) {
+          // 回复评论：通知被回复的用户
+          const parentComment = await env.DB.prepare(`
+            SELECT c.user_id, u.username, u.name as display_name, c.content
+            FROM comments c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.id = ? AND u.deleted_at IS NULL
+          `).bind(parent_id).first();
+
+          if (parentComment && parentComment.user_id !== user.id) {
+            notificationTargets.push({
+              userId: parentComment.user_id,
+              title: '收到新回复',
+              content: `${user.name || user.username} 回复了你的评论`
+            });
+          }
+        }
+
+        // 通知文章作者（如果不是作者自己评论）
+        // 对slug进行URL解码，处理中文slug
+        const decodedSlug = decodeURIComponent(slug);
+        const postAuthor = await env.DB.prepare(`
+          SELECT p.author_id, p.title, u.username, u.name as display_name
+          FROM user_posts p
+          JOIN users u ON p.author_id = u.id
+          WHERE p.slug = ? AND u.deleted_at IS NULL
+        `).bind(decodedSlug).first();
+
+        if (postAuthor && postAuthor.author_id !== user.id) {
+          // 检查是否已经在通知列表中（避免重复通知）
+          const alreadyNotified = notificationTargets.some(target => target.userId === postAuthor.author_id);
+          if (!alreadyNotified) {
+            notificationTargets.push({
+              userId: postAuthor.author_id,
+              title: '文章收到新评论',
+              content: `${user.name || user.username} 评论了你的文章《${postAuthor.title}》`
+            });
+          }
+        }
+
+        // 批量创建通知
+        if (notificationTargets.length > 0) {
+          const notificationInserts = notificationTargets.map(target =>
+                         env.DB.prepare(`
+               INSERT INTO notifications (user_id, type, title, content, source_user_id, source_post_slug)
+               VALUES (?, 'comment', ?, ?, ?, ?)
+             `).bind(target.userId, target.title, target.content, user.id, decodedSlug)
+          );
+
+          await env.DB.batch(notificationInserts);
+        }
+      } catch (notificationError) {
+        console.error('创建评论通知失败:', notificationError);
+        // 通知失败不影响评论功能
+      }
+
       return Response.json({ 
         message: "评论发表成功！", 
         success: true 
