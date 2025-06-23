@@ -61,7 +61,7 @@ export default function LoginPage() {
             登录到您的账户
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            管理员账号：admin / admin123456 <br />
+            {/* 管理员账号：admin / admin123456 <br /> */}
             <span className="text-xs">支持用户ID或邮箱登录</span>
           </p>
         </div>

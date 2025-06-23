@@ -29,20 +29,36 @@ export async function onRequestPost(context) {
     }
 
     // 查找用户（支持用户ID或邮箱登录）
-    const { results } = await env.DB.prepare(
+    let user = null;
+    
+    // 首先尝试按用户名查找
+    const userByUsername = await env.DB.prepare(
       `SELECT id, username, name, email, password_hash, role, is_active 
        FROM users 
-       WHERE (username = ? OR email = ?) AND deleted_at IS NULL`
-    ).bind(username, username).all();
+       WHERE username = ? AND deleted_at IS NULL`
+    ).bind(username).first();
+    
+    if (userByUsername) {
+      user = userByUsername;
+    } else {
+      // 如果用户名没找到，再按邮箱查找
+      const userByEmail = await env.DB.prepare(
+        `SELECT id, username, name, email, password_hash, role, is_active 
+         FROM users 
+         WHERE email = ? AND deleted_at IS NULL`
+      ).bind(username).first();
+      
+      if (userByEmail) {
+        user = userByEmail;
+      }
+    }
 
-    if (results.length === 0) {
+    if (!user) {
       return Response.json(
         { error: "账号或密码错误" }, 
         { status: 401 }
       );
     }
-
-    const user = results[0];
 
     // 检查用户是否被禁用
     if (!user.is_active) {
