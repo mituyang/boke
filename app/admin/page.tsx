@@ -67,6 +67,8 @@ function AdminPage() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'posts'>('stats');
 
+  const isSuperAdmin = currentUser?.username === 'admin';
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -202,13 +204,13 @@ function AdminPage() {
       const data = await response.json();
       
       if (response.ok) {
-        alert('用户状态更新成功');
+        alert('状态更新成功');
         fetchData(); // 重新获取数据
       } else {
         alert(data.error || '更新失败');
       }
     } catch (error) {
-      console.error('更新用户状态失败:', error);
+      console.error('更新状态失败:', error);
       alert('更新失败');
     }
   };
@@ -219,14 +221,18 @@ function AdminPage() {
     }
 
     try {
-      const response = await fetch(`/api/admin/users?userId=${userId}`, {
+      const response = await fetch('/api/admin/users', {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
       });
 
       const data = await response.json();
       
       if (response.ok) {
-        alert('用户删除成功');
+        alert(`用户 "${username}" 已被删除`);
         fetchData(); // 重新获取数据
       } else {
         alert(data.error || '删除失败');
@@ -238,28 +244,15 @@ function AdminPage() {
   };
 
   const syncCommentCounts = async () => {
-    if (!confirm('确定要同步评论数量吗？这将检查并修正所有文章的评论统计数据。')) {
-      return;
-    }
-
     try {
       const response = await fetch('/api/admin/sync-comments', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
       });
 
       const data = await response.json();
       
       if (response.ok) {
-        if (data.updates.length === 0) {
-          alert('所有评论数量统计都是准确的，无需更新。');
-        } else {
-          alert(`${data.message}\n\n更新详情：\n${data.updates.map((u: any) => 
-            `• ${u.post_slug}: ${u.old_count} → ${u.new_count} (${u.action})`
-          ).join('\n')}`);
-        }
+        alert('评论数量同步成功');
         fetchData(); // 重新获取数据
       } else {
         alert(data.error || '同步失败');
@@ -272,344 +265,338 @@ function AdminPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-gray-900 dark:text-white">加载中...</div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">加载中...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-red-600 dark:text-red-400">{error}</div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center text-red-600 dark:text-red-400">
+          <p>加载失败: {error}</p>
+        </div>
       </div>
     );
   }
 
-  const isSuperAdmin = currentUser?.username === 'admin';
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">管理后台</h1>
-        <div className="text-sm text-gray-600 dark:text-gray-400">
-          当前用户：{currentUser?.name} ({currentUser?.username})
-          {isSuperAdmin && <span className="ml-2 text-red-600 dark:text-red-400 font-semibold">超级管理员</span>}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-4 px-2 sm:px-4 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* 页面标题 */}
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">管理后台</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            当前用户: <span className="font-medium">{currentUser?.name} (admin)</span> | 
+            超级管理员 | 时间显示：上海时区 (UTC+8)
+          </p>
         </div>
-        <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-          时间显示：上海时区 (UTC+8)
-        </div>
-      </div>
 
-      {/* 标签页导航 */}
-      <div className="mb-6">
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="-mb-px flex space-x-8">
-            <button
-              onClick={() => setActiveTab('stats')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'stats'
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
-            >
-              网站统计
-            </button>
-            <button
-              onClick={() => setActiveTab('users')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'users'
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
-            >
-              用户管理
-            </button>
-            <button
-              onClick={() => setActiveTab('posts')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'posts'
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
-            >
-              文章管理
-            </button>
-          </nav>
-        </div>
-      </div>
-
-      {/* 权限说明 */}
-      {activeTab === 'stats' && (
-        <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
-          <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">权限说明</h3>
-          <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-            <p>• <span className="font-semibold">超级管理员 (admin)</span>：拥有所有权限，包括分配用户角色和删除用户</p>
-            <p>• <span className="font-semibold">普通管理员</span>：可以查看用户列表和启用/禁用用户，但不能分配角色</p>
-            <p>• <span className="font-semibold">普通用户</span>：只能访问博客内容和评论功能</p>
+        {/* 标签页导航 */}
+        <div className="mb-4">
+          <div className="border-b border-gray-200 dark:border-gray-700">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('stats')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'stats'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                网站统计
+              </button>
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'users'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                用户管理
+              </button>
+              <button
+                onClick={() => setActiveTab('posts')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'posts'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                文章管理
+              </button>
+            </nav>
           </div>
         </div>
-      )}
 
-      {/* 网站统计 */}
-      {activeTab === 'stats' && stats && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">网站统计</h2>
-            <button
-              onClick={syncCommentCounts}
-              className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white text-sm rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-            >
-              同步评论数量
-            </button>
+        {/* 网站统计 */}
+        {activeTab === 'stats' && stats && (
+          <div className="space-y-4">
+            {/* 统计卡片 */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.site.total_visits}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">总访问量</div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.site.total_comments}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">总评论数</div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.posts.total_posts}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">文章总数</div>
+              </div>
+            </div>
+            
+            {/* 权限说明 */}
+            <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+              <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">权限说明</h3>
+              <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                <p>• <span className="font-semibold">超级管理员</span>：拥有所有权限 • <span className="font-semibold">普通管理员</span>：可管理用户但不能分配角色 • <span className="font-semibold">普通用户</span>：只能访问博客内容</p>
+              </div>
+              <button
+                onClick={syncCommentCounts}
+                className="mt-2 px-3 py-1 bg-blue-600 dark:bg-blue-700 text-white text-xs rounded hover:bg-blue-700 dark:hover:bg-blue-600"
+              >
+                同步评论数量
+              </button>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.site.total_visits}</div>
-              <div className="text-gray-600 dark:text-gray-400">总访问量</div>
-            </div>
-            <div className="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.site.total_comments}</div>
-              <div className="text-gray-600 dark:text-gray-400">总评论数</div>
-            </div>
-            <div className="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.posts.total_posts}</div>
-              <div className="text-gray-600 dark:text-gray-400">文章总数</div>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* 用户管理 */}
-      {activeTab === 'users' && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">用户管理</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  用户信息
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  角色
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  状态
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  最后登录
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  操作
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {user.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          @{user.username} • {user.email}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {isSuperAdmin && user.id !== currentUser?.id ? (
-                      <select
-                        value={user.role}
-                        onChange={(e) => updateUserRole(user.id, e.target.value)}
-                        className="text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded px-2 py-1"
-                      >
-                        <option value="user">普通用户</option>
-                        <option value="admin">管理员</option>
-                      </select>
-                    ) : (
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        user.role === 'admin' 
-                          ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-400' 
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
-                      }`}>
-                        {user.role === 'admin' ? '管理员' : '普通用户'}
-                        {user.username === 'admin' && ' (超级)'}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {user.deleted_at ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
-                        已删除
-                      </span>
-                    ) : user.id !== currentUser?.id ? (
-                      <button
-                        onClick={() => updateUserStatus(user.id, !user.is_active)}
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          user.is_active 
-                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800' 
-                            : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800'
-                        }`}
-                      >
-                        {user.is_active ? '已启用' : '已禁用'}
-                      </button>
-                    ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-400">
-                        已启用 (自己)
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {user.last_login ? formatDate(user.last_login) : '从未登录'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    {isSuperAdmin && user.id !== currentUser?.id && user.username !== 'admin' && !user.deleted_at ? (
-                      <button
-                        onClick={() => deleteUser(user.id, user.username)}
-                        className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                      >
-                        删除
-                      </button>
-                    ) : (
-                      <span className="text-gray-400 dark:text-gray-500">-</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      )}
-
-      {/* 文章管理 */}
-      {activeTab === 'posts' && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">文章管理</h2>
-          </div>
-          {postsLoading ? (
-            <div className="p-6 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">加载中...</p>
+        {/* 用户管理 */}
+        {activeTab === 'users' && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">用户管理</h2>
             </div>
-          ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      文章信息
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      用户信息
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      作者
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      角色
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                       状态
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      统计
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      最后登录
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      创建时间
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                       操作
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {posts.map((post) => (
-                    <tr key={post.id}>
-                      <td className="px-6 py-4">
+                  {users.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <td className="px-4 py-2">
                         <div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-xs">
-                            {post.title}
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {user.name}
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
-                            {post.excerpt}
-                          </div>
-                          <div className="flex items-center mt-1">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              post.is_official
-                                ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-400' 
-                                : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-400'
-                            }`}>
-                              {post.is_official ? '官方文章' : '用户文章'}
-                            </span>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            @{user.username} • {user.email}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-white">{post.author_name}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">@{post.username}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          post.status === 'published' 
-                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-400' 
-                            : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-400'
-                        }`}>
-                          {post.status === 'published' ? '已发布' : '草稿'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        <div>浏览: {post.view_count}</div>
-                        <div>点赞: {post.like_count}</div>
-                        <div>评论: {post.comment_count}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {formatDate(post.created_at)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <a
-                            href={`/article?slug=${post.slug}&type=user`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
+                      <td className="px-4 py-2">
+                        {isSuperAdmin && user.id !== currentUser?.id ? (
+                          <select
+                            value={user.role}
+                            onChange={(e) => updateUserRole(user.id, e.target.value)}
+                            className="text-xs border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded px-2 py-1"
                           >
-                            查看
-                          </a>
-                          {/* 管理员可以删除普通用户的文章，超级管理员可以删除所有文章 */}
-                          {(isSuperAdmin || (!post.is_official && currentUser?.role === 'admin')) && (
-                            <button
-                              onClick={() => deletePost(post.id, post.title)}
-                              className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                            >
-                              删除
-                            </button>
-                          )}
-                        </div>
+                            <option value="user">普通用户</option>
+                            <option value="admin">管理员</option>
+                          </select>
+                        ) : (
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            user.role === 'admin' 
+                              ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-400' 
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
+                          }`}>
+                            {user.role === 'admin' ? '管理员' : '普通用户'}
+                            {user.username === 'admin' && ' (超级)'}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2">
+                        {user.deleted_at ? (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
+                            已删除
+                          </span>
+                        ) : user.id !== currentUser?.id ? (
+                          <button
+                            onClick={() => updateUserStatus(user.id, !user.is_active)}
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              user.is_active 
+                                ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-400 hover:bg-green-200' 
+                                : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-400 hover:bg-red-200'
+                            }`}
+                          >
+                            {user.is_active ? '已启用' : '已禁用'}
+                          </button>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-400">
+                            已启用 (自己)
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">
+                        {user.last_login ? formatDate(user.last_login) : '从未登录'}
+                      </td>
+                      <td className="px-4 py-2 text-xs font-medium">
+                        {isSuperAdmin && user.id !== currentUser?.id && user.username !== 'admin' && !user.deleted_at ? (
+                          <button
+                            onClick={() => deleteUser(user.id, user.username)}
+                            className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                          >
+                            删除
+                          </button>
+                        ) : (
+                          <span className="text-gray-400 dark:text-gray-500">-</span>
+                        )}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              {posts.length === 0 && (
-                <div className="p-6 text-center text-gray-500 dark:text-gray-400">
-                  暂无文章数据
-                </div>
-              )}
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
 
-      {/* 安全提示 */}
-      <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-yellow-800 mb-1">安全提示</h3>
-        <div className="text-xs text-yellow-700">
-          • 所有敏感数据均已加密传输和存储
-          • 时间显示统一使用上海时区 (UTC+8)
-          • 超级管理员账号拥有最高权限，请妥善保管
-          • 管理员可删除普通用户文章，超级管理员可删除所有文章
+        {/* 文章管理 */}
+        {activeTab === 'posts' && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">文章管理</h2>
+            </div>
+            {postsLoading ? (
+              <div className="p-6 text-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">加载中...</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        文章信息
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        作者
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        状态/统计
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        时间
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        操作
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {posts.map((post) => (
+                      <tr key={post.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td className="px-3 py-1.5">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-xs">
+                              {post.title}
+                            </div>
+                            {post.excerpt && (
+                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs mt-0.5">
+                                {post.excerpt}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-3 py-1.5">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">{post.author_name}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@{post.username}</div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-1.5">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1 whitespace-nowrap">
+                              <span className={`inline-flex items-center px-1 py-0.5 rounded text-xs font-medium ${
+                                post.status === 'published' 
+                                  ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' 
+                                  : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400'
+                              }`}>
+                                {post.status === 'published' ? '发布' : '草稿'}
+                              </span>
+                              <span className={`inline-flex items-center px-1 py-0.5 rounded text-xs font-medium ${
+                                post.is_official
+                                  ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400' 
+                                  : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400'
+                              }`}>
+                                {post.is_official ? '官方' : '用户'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs whitespace-nowrap">
+                              <span className="text-blue-600 dark:text-blue-400">👁{post.view_count}</span>
+                              <span className="text-red-500">❤{post.like_count}</span>
+                              <span className="text-green-600 dark:text-green-400">💬{post.comment_count}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400">
+                          {formatDate(post.created_at)}
+                        </td>
+                        <td className="px-3 py-1.5 text-xs font-medium">
+                          <div className="flex items-center gap-2 whitespace-nowrap">
+                            <a
+                              href={`/article?slug=${post.slug}&type=user`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
+                            >
+                              查看
+                            </a>
+                            {/* 管理员可以删除普通用户的文章，超级管理员可以删除所有文章 */}
+                            {(isSuperAdmin || (!post.is_official && currentUser?.role === 'admin')) && (
+                              <button
+                                onClick={() => deletePost(post.id, post.title)}
+                                className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                              >
+                                删除
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {posts.length === 0 && (
+                  <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+                    暂无文章数据
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 安全提示 - 精简版 */}
+        <div className="mt-4 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3">
+          <div className="text-xs text-yellow-700 dark:text-yellow-300">
+            <strong>安全提示：</strong> 所有数据已加密传输 • 使用上海时区(UTC+8) • 管理员可删除普通用户文章，超级管理员可删除所有文章
+          </div>
         </div>
       </div>
     </div>
