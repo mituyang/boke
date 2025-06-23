@@ -88,25 +88,15 @@ async function verifyUser(request, env) {
   }
 }
 
-// 生成文章slug（只使用英文数字，避免中文URL编码问题）
-function generateSlug(title) {
-  // 先尝试提取英文字符作为slug
-  let slug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '') // 只保留英文、数字、空格、横线
-    .replace(/\s+/g, '-') // 空格替换为横线
-    .replace(/-+/g, '-') // 多个横线替换为一个
-    .replace(/^-|-$/g, '') // 去除首尾横线
-    .substring(0, 50); // 限制长度
+// 生成随机唯一的文章URL标识符
+function generateRandomSlug() {
+  // 生成更长的随机字符串确保唯一性
+  const timestamp = Date.now().toString(36); // 时间戳转36进制
+  const random1 = Math.random().toString(36).substring(2, 10); // 8位随机字符
+  const random2 = Math.random().toString(36).substring(2, 8);  // 6位随机字符
   
-  // 如果没有英文字符，生成随机slug
-  if (!slug || slug.length < 2) {
-    const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(2, 8);
-    slug = `post-${timestamp}-${random}`;
-  }
-  
-  return slug;
+  // 组合时间戳和随机字符，确保唯一性和随机性
+  return `${random1}-${timestamp}-${random2}`;
 }
 
 // 生成文章摘要
@@ -314,20 +304,26 @@ export async function onRequest(context) {
         });
       }
 
-      // 生成唯一slug
-      let baseSlug = generateSlug(title);
-      let slug = baseSlug;
-      let counter = 1;
+      // 生成唯一的随机slug
+      let slug;
+      let attempts = 0;
+      const maxAttempts = 10; // 最大重试次数，防止无限循环
       
-      while (true) {
+      do {
+        slug = generateRandomSlug();
         const existing = await env.DB.prepare(`
           SELECT id FROM user_posts WHERE slug = ?
         `).bind(slug).first();
         
         if (!existing) break;
         
-        slug = `${baseSlug}-${counter}`;
-        counter++;
+        attempts++;
+      } while (attempts < maxAttempts);
+      
+      // 如果重试次数过多仍有重复，添加额外的随机后缀
+      if (attempts >= maxAttempts) {
+        const extraRandom = Math.random().toString(36).substring(2, 8);
+        slug = `${slug}-${extraRandom}`;
       }
 
       const excerpt = generateExcerpt(content);
