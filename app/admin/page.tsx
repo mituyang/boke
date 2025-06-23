@@ -15,6 +15,24 @@ interface User {
   deleted_at?: string;
 }
 
+interface Post {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  status: string;
+  view_count: number;
+  like_count: number;
+  comment_count: number;
+  created_at: string;
+  updated_at: string;
+  published_at?: string;
+  author_id: number;
+  username: string;
+  author_name: string;
+  is_official: boolean;
+}
+
 interface Stats {
   site: {
     total_visits: number;
@@ -42,13 +60,28 @@ interface Stats {
 function AdminPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [users, setUsers] = useState<User[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [postsLoading, setPostsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'posts'>('stats');
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'posts') {
+      fetchPosts();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'posts') {
+      fetchPosts();
+    }
+  }, [activeTab]);
 
   const fetchData = async () => {
     try {
@@ -72,11 +105,57 @@ function AdminPage() {
         const usersData = await usersResponse.json();
         setUsers(usersData.users || []);
       }
+
+
     } catch (error) {
       console.error('获取数据失败:', error);
       setError('加载数据失败');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPosts = async () => {
+    setPostsLoading(true);
+    try {
+      const response = await fetch('/api/admin/posts', {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data.posts || []);
+      } else {
+        console.error('获取文章列表失败');
+      }
+    } catch (error) {
+      console.error('获取文章列表失败:', error);
+    } finally {
+      setPostsLoading(false);
+    }
+  };
+
+  const deletePost = async (postId: number, title: string) => {
+    if (!confirm(`确定要删除文章 "${title}" 吗？此操作不可恢复！`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/posts?postId=${postId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert(`文章 "${title}" 已被删除`);
+        fetchPosts(); // 重新获取文章列表
+      } else {
+        alert(data.error || '删除失败');
+      }
+    } catch (error) {
+      console.error('删除文章失败:', error);
+      alert('删除失败');
     }
   };
 
@@ -222,18 +301,58 @@ function AdminPage() {
         </div>
       </div>
 
-      {/* 权限说明 */}
-      <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
-        <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">权限说明</h3>
-        <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-          <p>• <span className="font-semibold">超级管理员 (admin)</span>：拥有所有权限，包括分配用户角色和删除用户</p>
-          <p>• <span className="font-semibold">普通管理员</span>：可以查看用户列表和启用/禁用用户，但不能分配角色</p>
-          <p>• <span className="font-semibold">普通用户</span>：只能访问博客内容和评论功能</p>
+      {/* 标签页导航 */}
+      <div className="mb-6">
+        <div className="border-b border-gray-200 dark:border-gray-700">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setActiveTab('stats')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'stats'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+              }`}
+            >
+              网站统计
+            </button>
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'users'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+              }`}
+            >
+              用户管理
+            </button>
+            <button
+              onClick={() => setActiveTab('posts')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'posts'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+              }`}
+            >
+              文章管理
+            </button>
+          </nav>
         </div>
       </div>
 
+      {/* 权限说明 */}
+      {activeTab === 'stats' && (
+        <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
+          <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">权限说明</h3>
+          <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+            <p>• <span className="font-semibold">超级管理员 (admin)</span>：拥有所有权限，包括分配用户角色和删除用户</p>
+            <p>• <span className="font-semibold">普通管理员</span>：可以查看用户列表和启用/禁用用户，但不能分配角色</p>
+            <p>• <span className="font-semibold">普通用户</span>：只能访问博客内容和评论功能</p>
+          </div>
+        </div>
+      )}
+
       {/* 网站统计 */}
-      {stats && (
+      {activeTab === 'stats' && stats && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">网站统计</h2>
@@ -262,7 +381,8 @@ function AdminPage() {
       )}
 
       {/* 用户管理 */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+      {activeTab === 'users' && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">用户管理</h2>
         </div>
@@ -366,6 +486,121 @@ function AdminPage() {
           </table>
         </div>
       </div>
+      )}
+
+      {/* 文章管理 */}
+      {activeTab === 'posts' && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">文章管理</h2>
+          </div>
+          {postsLoading ? (
+            <div className="p-6 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">加载中...</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      文章信息
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      作者
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      状态
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      统计
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      创建时间
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      操作
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  {posts.map((post) => (
+                    <tr key={post.id}>
+                      <td className="px-6 py-4">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-xs">
+                            {post.title}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                            {post.excerpt}
+                          </div>
+                          <div className="flex items-center mt-1">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              post.is_official
+                                ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-400' 
+                                : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-400'
+                            }`}>
+                              {post.is_official ? '官方文章' : '用户文章'}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 dark:text-white">{post.author_name}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">@{post.username}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          post.status === 'published' 
+                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-400' 
+                            : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-400'
+                        }`}>
+                          {post.status === 'published' ? '已发布' : '草稿'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        <div>浏览: {post.view_count}</div>
+                        <div>点赞: {post.like_count}</div>
+                        <div>评论: {post.comment_count}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {formatDate(post.created_at)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <a
+                            href={`/article?slug=${post.slug}&type=user`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
+                          >
+                            查看
+                          </a>
+                          {/* 管理员可以删除普通用户的文章，超级管理员可以删除所有文章 */}
+                          {(isSuperAdmin || (!post.is_official && currentUser?.role === 'admin')) && (
+                            <button
+                              onClick={() => deletePost(post.id, post.title)}
+                              className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                            >
+                              删除
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {posts.length === 0 && (
+                <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+                  暂无文章数据
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 安全提示 */}
       <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -374,6 +609,7 @@ function AdminPage() {
           • 所有敏感数据均已加密传输和存储
           • 时间显示统一使用上海时区 (UTC+8)
           • 超级管理员账号拥有最高权限，请妥善保管
+          • 管理员可删除普通用户文章，超级管理员可删除所有文章
         </div>
       </div>
     </div>

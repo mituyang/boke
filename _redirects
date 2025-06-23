@@ -1,2 +1,15 @@
-# Handle client-side routing for Next.js
+# API routes must be handled by Cloudflare Functions
+/api/test  200
+/api/admin/*  200
+/api/auth/*  200
+/api/comments/*  200
+/api/follow/*  200
+/api/likes/*  200
+/api/notifications  200
+/api/site-stats  200
+/api/stats/*  200
+/api/user-posts/*  200
+/api/user-posts  200
+
+# Handle client-side routing for Next.js (everything else)
 /*    /index.html   200 
