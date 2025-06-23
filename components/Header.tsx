@@ -54,9 +54,12 @@ export default function Header() {
               联系
             </Link>
             
-            {/* 登录用户可以看到写文章和我的文章 */}
+            {/* 登录用户可以看到聊天室、写文章和我的文章 */}
             {isLoggedIn() && (
               <>
+                <Link href="/chat" className={getLinkStyle('/chat')}>
+                  💬 聊天室
+                </Link>
                 <Link href="/write" className={getLinkStyle('/write')}>
                   写文章
                 </Link>
@@ -185,6 +188,13 @@ export default function Header() {
                 {isLoggedIn() && (
                   <>
                     <div className="border-t dark:border-gray-700 my-2"></div>
+                    <Link 
+                      href="/chat" 
+                      className={`${getLinkStyle('/chat')} block px-3 py-2 rounded-md text-base font-medium`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      💬 聊天室
+                    </Link>
                     <Link 
                       href="/write" 
                       className={`${getLinkStyle('/write')} block px-3 py-2 rounded-md text-base font-medium`}

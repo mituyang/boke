@@ -2,7 +2,9 @@
 /api/test  200
 /api/admin/*  200
 /api/auth/*  200
+/api/chat/*  200
 /api/comments/*  200
+/api/debug-chat  200
 /api/follow/*  200
 /api/likes/*  200
 /api/notifications  200
