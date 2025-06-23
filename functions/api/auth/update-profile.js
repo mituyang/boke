@@ -1,9 +1,8 @@
-// 获取上海时区时间的ISO字符串（用于数据库）
+// 获取上海时区时间
 function getShanghaiTimeISO() {
   const now = new Date();
-  // 获取上海时区的时间
-  const shanghaiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
-  return shanghaiTime.toISOString().replace('Z', '+08:00');
+  const shanghaiTime = new Date(now.getTime() + (8 * 60 * 60 * 1000)); // UTC+8
+  return shanghaiTime.toISOString().replace('T', ' ').substring(0, 19);
 }
 
 // 从 cookie 字符串中提取指定的值
@@ -161,9 +160,10 @@ export async function onRequestPut(context) {
     }
 
     // 更新用户信息
+    const shanghaiTime = getShanghaiTimeISO();
     await env.DB.prepare(
-      "UPDATE users SET username = ?, name = ?, email = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
-    ).bind(userId, nickname, email, user.id).run();
+      "UPDATE users SET username = ?, name = ?, email = ?, updated_at = ? WHERE id = ?"
+    ).bind(userId, nickname, email, shanghaiTime, user.id).run();
 
     // 获取更新后的用户信息
     const { results } = await env.DB.prepare(

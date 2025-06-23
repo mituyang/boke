@@ -1,3 +1,10 @@
+// 获取上海时区时间
+function getShanghaiTimeISO() {
+  const now = new Date();
+  const shanghaiTime = new Date(now.getTime() + (8 * 60 * 60 * 1000)); // UTC+8
+  return shanghaiTime.toISOString().replace('T', ' ').substring(0, 19);
+}
+
 // 用户注册
 export async function onRequestPost(context) {
   const { env, request } = context;
@@ -82,9 +89,10 @@ export async function onRequestPost(context) {
     const passwordHash = await hashString(password);
 
     // 创建用户
+    const currentTime = getShanghaiTimeISO();
     const result = await env.DB.prepare(
-      "INSERT INTO users (username, name, email, password_hash, role, is_active) VALUES (?, ?, ?, ?, 'user', TRUE)"
-    ).bind(userId, nickname, email, passwordHash).run();
+      "INSERT INTO users (username, name, email, password_hash, role, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, 'user', TRUE, ?, ?)"
+    ).bind(userId, nickname, email, passwordHash, currentTime, currentTime).run();
 
     return Response.json({
       success: true,
