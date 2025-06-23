@@ -102,12 +102,12 @@ export default function BlogPage() {
   return (
     <div>
       {/* 页面标题和过滤器 */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+      <div className="mb-6 md:mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
             所有文章
           </h1>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             {[
               { key: 'all', label: '全部' },
               { key: 'static', label: '官方文章' },
@@ -116,7 +116,7 @@ export default function BlogPage() {
               <button
                 key={item.key}
                 onClick={() => setFilter(item.key as any)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 md:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   filter === item.key
                     ? 'bg-blue-600 dark:bg-blue-700 text-white'
                     : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600'
@@ -128,7 +128,7 @@ export default function BlogPage() {
           </div>
         </div>
         
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
           发现有趣的内容 • 共 {filteredPosts.length} 篇文章
         </p>
       </div>
@@ -139,13 +139,13 @@ export default function BlogPage() {
           <p className="text-gray-500 dark:text-gray-500 mt-2">请稍后再来查看</p>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6 md:space-y-8">
           {filteredPosts.map((post) => (
-            <article key={`${post.type}-${post.slug}`} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+            <article key={`${post.type}-${post.slug}`} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6 hover:shadow-lg transition-shadow">
               {/* 文章类型标识 */}
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-2">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 space-y-2 sm:space-y-0">
+                <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+                  <span className={`px-2 py-1 rounded text-xs font-medium w-fit ${
                     post.is_official
                       ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-400' 
                       : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-400'
@@ -165,28 +165,27 @@ export default function BlogPage() {
                 href={`/article?slug=${post.slug}&type=user`}
                 className="block"
               >
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white mb-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   {post.title}
                 </h2>
               </Link>
               
-              <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+              <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed text-sm md:text-base">
                 {post.excerpt}
               </p>
               
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                 <div className="flex items-center space-x-4">
                   <PostStats postSlug={post.slug} showIncrement={false} showLikes={false} />
                   <LikeButton slug={post.slug} className="text-sm" />
                 </div>
+                <Link 
+                  href={`/article?slug=${post.slug}&type=user`}
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium w-fit"
+                >
+                  阅读全文 →
+                </Link>
               </div>
-              
-              <Link 
-                href={`/article?slug=${post.slug}&type=user`}
-                className="inline-block mt-4 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
-              >
-                阅读全文 →
-              </Link>
             </article>
           ))}
         </div>

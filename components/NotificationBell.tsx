@@ -253,10 +253,10 @@ export default function NotificationBell() {
 
       {/* 通知下拉菜单 */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-80 sm:max-h-96 overflow-hidden">
           {/* 头部 */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">通知</h3>
+          <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">通知</h3>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
@@ -268,17 +268,17 @@ export default function NotificationBell() {
           </div>
 
           {/* 通知列表 */}
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-64 sm:max-h-80 overflow-y-auto">
             {loading && notifications.length === 0 ? (
-              <div className="flex items-center justify-center py-8">
+              <div className="flex items-center justify-center py-6 sm:py-8">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 dark:border-blue-400"></div>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
-                <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex flex-col items-center justify-center py-6 sm:py-8 text-gray-500 dark:text-gray-400">
+                <svg className="w-6 sm:w-8 h-6 sm:h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
-                <p>暂无通知</p>
+                <p className="text-sm">暂无通知</p>
               </div>
             ) : (
               <>
@@ -287,26 +287,28 @@ export default function NotificationBell() {
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
                     className={`
-                      p-4 border-b border-gray-200 dark:border-gray-700 cursor-pointer
+                      p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 cursor-pointer
                       hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors
                       ${!notification.isRead ? 'bg-blue-50 dark:bg-blue-900/20' : ''}
                     `}
                   >
-                    <div className="flex items-start space-x-3">
-                      {getNotificationIcon(notification.type)}
+                    <div className="flex items-start space-x-2 sm:space-x-3">
+                      <div className="flex-shrink-0">
+                        {getNotificationIcon(notification.type)}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate pr-2">
                             {notification.title}
                           </p>
                           {!notification.isRead && (
-                            <span className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full"></span>
+                            <span className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full flex-shrink-0"></span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
                           {notification.content}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 sm:mt-2">
                           {formatTime(notification.createdAt)}
                         </p>
                       </div>
@@ -316,7 +318,7 @@ export default function NotificationBell() {
 
                 {/* 加载更多按钮 */}
                 {hasMore && (
-                  <div className="p-4 text-center">
+                  <div className="p-3 sm:p-4 text-center">
                     <button
                       onClick={loadMore}
                       disabled={loading}

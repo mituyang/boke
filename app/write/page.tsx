@@ -152,22 +152,22 @@ function WritePage() {
   }, [editId, token]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-6 md:py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 页面头部 */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center">
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
                 {isEditing ? '编辑文章' : '写文章'}
               </h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">
+              <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
                 {isEditing ? '修改您的文章' : '分享您的想法和知识'}
               </p>
             </div>
             <button
               onClick={() => router.push('/my-posts')}
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white text-sm md:text-base w-fit"
             >
               返回我的文章
             </button>
@@ -176,9 +176,9 @@ function WritePage() {
 
         {/* 文章表单 */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-          <div className="p-6">
+          <div className="p-4 md:p-6">
             {/* 标题输入 */}
-            <div className="mb-6">
+            <div className="mb-4 md:mb-6">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 文章标题 *
               </label>
@@ -187,7 +187,7 @@ function WritePage() {
                 value={formData.title}
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                 placeholder="请输入文章标题..."
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base md:text-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 maxLength={100}
               />
               <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -196,7 +196,7 @@ function WritePage() {
             </div>
 
             {/* 内容输入 */}
-            <div className="mb-6">
+            <div className="mb-4 md:mb-6">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 文章内容 *
               </label>
@@ -204,9 +204,9 @@ function WritePage() {
                 value={formData.content}
                 onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
                 placeholder="请输入文章内容...&#10;&#10;支持Markdown格式：&#10;# 一级标题&#10;## 二级标题&#10;**粗体**&#10;*斜体*&#10;[链接](http://example.com)&#10;![图片](http://example.com/image.jpg)&#10;```代码块```"
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                rows={20}
-                style={{ minHeight: '500px' }}
+                className="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm md:text-base"
+                rows={16}
+                style={{ minHeight: '400px' }}
               />
               <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 支持 Markdown 语法，{formData.content.length} 字符
@@ -214,22 +214,22 @@ function WritePage() {
             </div>
 
             {/* 操作按钮 */}
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
               <div className="flex space-x-3">
                 <button
                   onClick={handlePreview}
                   disabled={!formData.content.trim()}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800"
+                  className="px-3 md:px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 text-sm md:text-base"
                 >
                   预览
                 </button>
               </div>
 
-              <div className="flex space-x-3">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                 <button
                   onClick={() => handleSave('draft')}
                   disabled={loading || !formData.title.trim() || !formData.content.trim()}
-                  className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800"
+                  className="px-4 md:px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 text-sm md:text-base"
                 >
                   {loading ? '保存中...' : '保存草稿'}
                 </button>
@@ -237,7 +237,7 @@ function WritePage() {
                 <button
                   onClick={() => handleSave('published')}
                   disabled={loading || !formData.title.trim() || !formData.content.trim()}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 md:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
                 >
                   {loading ? '发布中...' : (isEditing ? '更新并发布' : '发布文章')}
                 </button>
