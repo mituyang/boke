@@ -186,7 +186,7 @@ function ChatPage() {
                 <p className="text-blue-100 text-sm">实时聊天，畅所欲言</p>
               </div>
               <div className="text-blue-100 text-sm">
-                在线用户: {onlineUsers.length || '加载中...'}
+                在线用户: {onlineUsers.length > 0 ? onlineUsers.length : '加载中...'}
               </div>
             </div>
           </div>
@@ -212,10 +212,10 @@ function ChatPage() {
                         </div>
                         
                         {/* 消息内容 */}
-                        <div className={`flex-1 max-w-xs sm:max-w-sm md:max-w-md ${
-                          message.user_id === currentUser?.id ? 'text-right' : ''
-                        }`}>
-                          <div className="flex items-center gap-2 mb-1">
+                        <div className={`flex-1 max-w-xs sm:max-w-sm md:max-w-md`}>
+                          <div className={`flex items-center gap-2 mb-1 ${
+                            message.user_id === currentUser?.id ? 'justify-end' : ''
+                          }`}>
                             <span className="text-sm font-medium text-gray-900 dark:text-white">
                               {message.user_name}
                             </span>
@@ -230,19 +230,21 @@ function ChatPage() {
                               : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
                           }`}>
                             {message.content}
-                            {message.is_edited && (
+                            {Boolean(message.is_edited) && (
                               <span className="text-xs opacity-70 ml-2">(已编辑)</span>
                             )}
                           </div>
 
                           {/* 删除按钮 */}
                           {canDeleteMessage(message) && (
-                            <button
-                              onClick={() => deleteMessage(message.id)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-red-500 hover:text-red-700 mt-1"
-                            >
-                              删除
-                            </button>
+                            <div className={`${message.user_id === currentUser?.id ? 'text-right' : ''}`}>
+                              <button
+                                onClick={() => deleteMessage(message.id)}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-red-500 hover:text-red-700 mt-1"
+                              >
+                                删除
+                              </button>
+                            </div>
                           )}
                         </div>
                       </div>

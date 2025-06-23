@@ -284,4 +284,55 @@ Cloudflare Pages 免费套餐包括：
 4. 添加评论系统（如 Disqus）
 5. 集成 Newsletter 订阅
 
-恭喜！你的博客现在已经部署到 Cloudflare Pages 并可以全球访问了。 
+恭喜！你的博客现在已经部署到 Cloudflare Pages 并可以全球访问了。
+
+## 新功能: 聊天室
+
+### 概述
+项目新增了实时聊天室功能，包括：
+- 用户可以实时发送和接收消息
+- 管理员可以删除任何用户的消息
+- 简单的频率限制防止刷屏
+- 移动端友好的界面设计
+
+### 技术实现
+
+#### 本地开发
+- 使用Next.js API路由 (`app/api/chat/messages/route.ts`)
+- 模拟数据存储在内存中
+- 每2秒轮询获取新消息
+
+#### 生产环境 (Cloudflare Pages)
+- 使用Cloudflare Pages Functions (`functions/api/chat/messages.js`)
+- 数据存储在Cloudflare D1数据库中
+- 消息历史持久化保存
+
+### 数据库表结构
+
+已创建的表：
+- `chat_rooms` - 聊天室信息
+- `chat_messages` - 聊天消息记录
+- `user_chat_settings` - 用户聊天设置
+
+### 部署注意事项
+
+1. **数据库迁移**: 确保运行了 `migrations/011-chat-system.sql`
+2. **API路由**: 生产环境使用 `functions/api/chat/messages.js`
+3. **实时通信**: 当前使用轮询，未来可以升级为WebSocket
+4. **权限控制**: 仅登录用户可以访问聊天室
+
+### 使用方法
+
+1. 用户登录后可在导航栏看到"💬 聊天室"链接
+2. 点击进入聊天室页面
+3. 可以发送文本消息（最多500字符）
+4. 管理员可以删除任何消息，普通用户只能删除自己的消息
+
+### 未来改进
+
+建议的增强功能：
+- 使用Cloudflare Durable Objects实现真正的实时WebSocket通信
+- 添加私聊功能
+- 支持图片和文件分享
+- 消息提及(@用户)功能
+- 聊天记录搜索 
