@@ -33,48 +33,50 @@ export default function Header() {
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700 relative z-30">
-      <nav className="container mx-auto px-4 py-4 max-w-4xl relative">
-        <div className="flex items-center justify-between">
+      <nav className="container mx-auto px-4 py-4 relative">
+        <div className="flex items-center justify-between w-full">
           <Link href="/" className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
             我的博客
           </Link>
           
-          {/* 桌面端导航 */}
-          <div className="hidden lg:flex items-center space-x-6">
-            <Link href="/" className={getLinkStyle('/')}>
-              首页
-            </Link>
-            <Link href="/blog" className={getLinkStyle('/blog')}>
-              博客
-            </Link>
-            <Link href="/about" className={getLinkStyle('/about')}>
-              关于
-            </Link>
-            <Link href="/contact" className={getLinkStyle('/contact')}>
-              联系
-            </Link>
-            
-            {/* 登录用户可以看到聊天室、写文章和我的文章 */}
-            {isLoggedIn() && (
-              <>
-                <Link href="/chat" className={getLinkStyle('/chat')}>
-                  💬 聊天室
-                </Link>
-                <Link href="/write" className={getLinkStyle('/write')}>
-                  写文章
-                </Link>
-                <Link href="/my-posts" className={getLinkStyle('/my-posts')}>
-                  我的文章
-                </Link>
-              </>
-            )}
-            
-            {/* 管理员才能看到管理链接 */}
-            {isAdmin() && (
-              <Link href="/admin" className={getLinkStyle('/admin')}>
-                管理
+          {/* 桌面端导航 - 横向展开 */}
+          <div className="hidden md:flex items-center justify-center flex-1 mx-8">
+            <div className="flex items-center space-x-8">
+              <Link href="/" className={getLinkStyle('/')}>
+                首页
               </Link>
-            )}
+              <Link href="/blog" className={getLinkStyle('/blog')}>
+                博客
+              </Link>
+              <Link href="/about" className={getLinkStyle('/about')}>
+                关于
+              </Link>
+              <Link href="/contact" className={getLinkStyle('/contact')}>
+                联系
+              </Link>
+              
+              {/* 登录用户可以看到聊天室、写文章和我的文章 */}
+              {isLoggedIn() && (
+                <>
+                  <Link href="/chat" className={getLinkStyle('/chat')}>
+                    💬 聊天室
+                  </Link>
+                  <Link href="/write" className={getLinkStyle('/write')}>
+                    写文章
+                  </Link>
+                  <Link href="/my-posts" className={getLinkStyle('/my-posts')}>
+                    我的文章
+                  </Link>
+                </>
+              )}
+              
+              {/* 管理员才能看到管理链接 */}
+              {isAdmin() && (
+                <Link href="/admin" className={getLinkStyle('/admin')}>
+                  管理
+                </Link>
+              )}
+            </div>
           </div>
 
           {/* 右侧按钮组 */}
@@ -129,7 +131,7 @@ export default function Header() {
             {/* 移动端汉堡菜单按钮 */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+              className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               aria-label="菜单"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,12 +150,12 @@ export default function Header() {
           <>
             {/* 遮罩层 */}
             <div 
-              className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+              className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
               onClick={() => setIsMenuOpen(false)}
             />
             
             {/* 菜单内容 */}
-            <div className="lg:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border-t dark:border-gray-700 shadow-lg z-50">
+            <div className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border-t dark:border-gray-700 shadow-lg z-50">
               <div className="px-4 py-4 space-y-1">
                 <Link 
                   href="/" 
