@@ -192,7 +192,7 @@ function ChatPage() {
             </div>
           </div>
 
-          <div className="flex h-96">
+          <div className="flex h-[70vh]">
             {/* 消息区域 */}
             <div className="flex-1 flex flex-col">
               {/* 消息列表 */}
