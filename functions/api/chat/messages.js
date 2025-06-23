@@ -141,19 +141,19 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
-    // 简单的频率限制检查
-    const recentMessages = await env.DB.prepare(`
-      SELECT COUNT(*) as count
-      FROM chat_messages 
-      WHERE user_id = ? AND created_at > datetime('now', '-1 minute')
-    `).bind(user.id).first();
+    // 取消频率限制 - 根据用户要求
+    // const recentMessages = await env.DB.prepare(`
+    //   SELECT COUNT(*) as count
+    //   FROM chat_messages 
+    //   WHERE user_id = ? AND created_at > datetime('now', '-1 minute')
+    // `).bind(user.id).first();
 
-    if (recentMessages.count >= 10) {
-      return new Response(JSON.stringify({ error: '发送消息过于频繁，请稍后再试' }), {
-        status: 429,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
+    // if (recentMessages.count >= 10) {
+    //   return new Response(JSON.stringify({ error: '发送消息过于频繁，请稍后再试' }), {
+    //     status: 429,
+    //     headers: { 'Content-Type': 'application/json' }
+    //   });
+    // }
 
     const now = getShanghaiTimeISO();
 

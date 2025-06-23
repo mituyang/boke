@@ -44,9 +44,10 @@ function ChatPage() {
     };
   }, []);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  // 取消自动滚动功能 - 根据用户要求
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [messages]);
 
   const fetchCurrentUser = async () => {
     try {
@@ -203,51 +204,89 @@ function ChatPage() {
                         消息已被删除
                       </div>
                     ) : (
-                      <div className={`flex items-start gap-3 ${
-                        message.user_id === currentUser?.id ? 'flex-row-reverse' : ''
-                      }`}>
-                        {/* 头像 */}
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                          {message.user_name.charAt(0).toUpperCase()}
-                        </div>
-                        
-                        {/* 消息内容 */}
-                        <div className={`flex-1 max-w-xs sm:max-w-sm md:max-w-md`}>
-                          <div className={`flex items-center gap-2 mb-1 ${
-                            message.user_id === currentUser?.id ? 'justify-end' : ''
-                          }`}>
-                            <span className="text-sm font-medium text-gray-900 dark:text-white">
-                              {message.user_name}
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              {formatTime(message.created_at)}
-                            </span>
-                          </div>
-                          
-                          <div className={`rounded-lg px-3 py-2 ${
-                            message.user_id === currentUser?.id
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                          }`}>
-                            {message.content}
-                            {Boolean(message.is_edited) && (
-                              <span className="text-xs opacity-70 ml-2">(已编辑)</span>
-                            )}
-                          </div>
+                      message.user_id === currentUser?.id ? (
+                        // 自己的消息 - 微信风格右对齐
+                        <div className="flex justify-end w-full">
+                          <div className="flex items-start gap-3 max-w-xs sm:max-w-sm md:max-w-md">
+                            {/* 消息内容区域 */}
+                            <div className="flex flex-col items-end">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {formatTime(message.created_at)}
+                                </span>
+                                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                  {message.user_name}
+                                </span>
+                              </div>
+                              
+                              <div className="rounded-lg px-3 py-2 bg-blue-500 text-white">
+                                {message.content}
+                                {Boolean(message.is_edited) && (
+                                  <span className="text-xs opacity-70 ml-2">(已编辑)</span>
+                                )}
+                              </div>
 
-                          {/* 删除按钮 */}
-                          {canDeleteMessage(message) && (
-                            <div className={`${message.user_id === currentUser?.id ? 'text-right' : ''}`}>
-                              <button
-                                onClick={() => deleteMessage(message.id)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-red-500 hover:text-red-700 mt-1"
-                              >
-                                删除
-                              </button>
+                              {/* 删除按钮 */}
+                              {canDeleteMessage(message) && (
+                                <div className="text-right">
+                                  <button
+                                    onClick={() => deleteMessage(message.id)}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-red-500 hover:text-red-700 mt-1"
+                                  >
+                                    删除
+                                  </button>
+                                </div>
+                              )}
                             </div>
-                          )}
+                            
+                            {/* 头像 */}
+                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                              {message.user_name.charAt(0).toUpperCase()}
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        // 其他人的消息 - 微信风格左对齐
+                        <div className="flex justify-start w-full">
+                          <div className="flex items-start gap-3 max-w-xs sm:max-w-sm md:max-w-md">
+                            {/* 头像 */}
+                            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                              {message.user_name.charAt(0).toUpperCase()}
+                            </div>
+                            
+                            {/* 消息内容区域 */}
+                            <div className="flex flex-col items-start">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                  {message.user_name}
+                                </span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {formatTime(message.created_at)}
+                                </span>
+                              </div>
+                              
+                              <div className="rounded-lg px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white">
+                                {message.content}
+                                {Boolean(message.is_edited) && (
+                                  <span className="text-xs opacity-70 ml-2">(已编辑)</span>
+                                )}
+                              </div>
+
+                              {/* 删除按钮 */}
+                              {canDeleteMessage(message) && (
+                                <div>
+                                  <button
+                                    onClick={() => deleteMessage(message.id)}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-red-500 hover:text-red-700 mt-1"
+                                  >
+                                    删除
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )
                     )}
                   </div>
                 ))}
