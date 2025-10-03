@@ -328,7 +328,7 @@ function AdminPage() {
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
-                文章管理
+                帖子管理
               </button>
             </nav>
           </div>
@@ -349,7 +349,7 @@ function AdminPage() {
               </div>
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                 <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.posts.total_posts}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">文章总数</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">帖子总数</div>
               </div>
             </div>
             
@@ -357,7 +357,7 @@ function AdminPage() {
             <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
               <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">权限说明</h3>
               <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                <p>• <span className="font-semibold">超级管理员</span>：拥有所有权限 • <span className="font-semibold">普通管理员</span>：可管理用户但不能分配角色 • <span className="font-semibold">普通用户</span>：只能访问博客内容</p>
+                <p>• <span className="font-semibold">超级管理员</span>：拥有所有权限 • <span className="font-semibold">普通管理员</span>：可管理用户但不能分配角色 • <span className="font-semibold">普通用户</span>：只能访问论坛内容</p>
               </div>
               <button
                 onClick={syncCommentCounts}
@@ -475,11 +475,11 @@ function AdminPage() {
           </div>
         )}
 
-        {/* 文章管理 */}
+        {/* 帖子管理 */}
         {activeTab === 'posts' && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">文章管理</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">帖子管理</h2>
             </div>
             {postsLoading ? (
               <div className="p-6 text-center">
@@ -492,7 +492,7 @@ function AdminPage() {
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        文章信息
+                        帖子信息
                       </th>
                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         作者
@@ -584,7 +584,7 @@ function AdminPage() {
                 </table>
                 {posts.length === 0 && (
                   <div className="p-6 text-center text-gray-500 dark:text-gray-400">
-                    暂无文章数据
+                    暂无帖子数据
                   </div>
                 )}
               </div>
@@ -595,7 +595,7 @@ function AdminPage() {
         {/* 安全提示 - 精简版 */}
         <div className="mt-4 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3">
           <div className="text-xs text-yellow-700 dark:text-yellow-300">
-            <strong>安全提示：</strong> 所有数据已加密传输 • 使用上海时区(UTC+8) • 管理员可删除普通用户文章，超级管理员可删除所有文章
+            <strong>安全提示：</strong> 所有数据已加密传输 • 使用上海时区(UTC+8) • 管理员可删除普通用户帖子，超级管理员可删除所有帖子
           </div>
         </div>
       </div>

@@ -6,7 +6,7 @@ import html from 'remark-html'
 import Comments from '@/components/Comments'
 import PostStats from '@/components/PostStats'
 
-interface BlogPostPageProps {
+interface ForumPostPageProps {
   params: {
     slug: string
   }
@@ -19,7 +19,7 @@ export async function generateStaticParams() {
   }))
 }
 
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
+export default async function ForumPostPage({ params }: ForumPostPageProps) {
   const post = getPostBySlug(params.slug)
 
   if (!post) {
@@ -37,10 +37,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-4">
           <a 
-            href="/blog" 
+            href="/forum" 
             className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm"
           >
-            ← 返回博客列表
+            ← 返回论坛列表
           </a>
         </div>
         

@@ -6,7 +6,7 @@ function getShanghaiTimeISO() {
   return shanghaiTime.toISOString().replace('Z', '+08:00');
 }
 
-// 获取文章评论
+// 获取帖子评论
 export async function onRequestGet(context) {
   const { params, env } = context;
   const slug = params.slug;
@@ -89,7 +89,7 @@ export async function onRequestPost(context) {
     ).bind(slug, user.id, user.name, user.email, content.trim(), parent_id || null, true, shanghaiTime).run();
 
     if (success) {
-      // 更新文章评论数量
+      // 更新帖子评论数量
       await env.DB.prepare(
         `INSERT INTO post_stats (post_slug, view_count, comment_count, updated_at) 
          VALUES (?, 0, 1, ?) 

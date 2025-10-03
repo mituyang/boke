@@ -123,10 +123,10 @@ export async function onRequest(context) {
 
   try {
     if (method === 'GET') {
-      // 检查是否是获取单篇文章
+      // 检查是否是获取单个帖子
       const id = url.searchParams.get('id');
       if (id) {
-        // 获取单篇文章用于编辑
+        // 获取单个帖子用于编辑
         const user = await verifyUser(request, env);
         if (!user) {
           return new Response(JSON.stringify({
@@ -149,7 +149,7 @@ export async function onRequest(context) {
         if (!post) {
           return new Response(JSON.stringify({
             success: false,
-            message: '文章不存在'
+            message: '帖子不存在'
           }), {
             status: 404,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -160,7 +160,7 @@ export async function onRequest(context) {
         if (post.author_id !== user.id && user.role !== 'admin' && user.role !== 'super_admin') {
           return new Response(JSON.stringify({
             success: false,
-            message: '无权限访问此文章'
+            message: '无权限访问此帖子'
           }), {
             status: 403,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }

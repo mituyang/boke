@@ -55,10 +55,10 @@ export default function Home() {
     <div>
       <section className="mb-8 md:mb-12">
         <h1 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          欢迎来到我的博客
+          欢迎来到社区论坛
         </h1>
         <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-          这里是我分享技术见解、个人思考和生活感悟的地方。
+          欢迎来到社区论坛，在这里你可以分享你的想法和经验，也可以学习到更多的知识。
         </p>
       </section>
 

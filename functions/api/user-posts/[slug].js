@@ -80,7 +80,7 @@ export async function onRequest(context) {
       // 获取用户信息
       const user = await verifyUser(request, env);
       
-      // 获取文章详情
+      // 获取帖子详情
       const post = await env.DB.prepare(`
         SELECT up.*, u.username, u.name as author_name,
           CASE WHEN u.role IN ('admin', 'super_admin') THEN 1 ELSE 0 END as is_official
@@ -92,25 +92,25 @@ export async function onRequest(context) {
       if (!post) {
         return new Response(JSON.stringify({
           success: false,
-          message: '文章不存在'
+          message: '帖子不存在'
         }), {
           status: 404,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
 
-      // 权限检查：已发布的文章所有人可见，草稿只有作者和管理员可见
+      // 权限检查：已发布的帖子所有人可见，草稿只有作者和管理员可见
       console.log('文章状态:', post.status, '用户:', user ? user.id : 'null');
       
       if (post.status === 'published') {
-        // 已发布文章，所有人（包括未登录用户）都可以查看
-        console.log('已发布文章，允许访问');
+        // 已发布帖子，所有人（包括未登录用户）都可以查看
+        console.log('已发布帖子，允许访问');
       } else if (post.status === 'draft' || post.status === 'deleted') {
-        // 草稿或已删除文章，只有作者和管理员可以查看
+        // 草稿或已删除帖子，只有作者和管理员可以查看
         if (!user) {
           return new Response(JSON.stringify({
             success: false,
-            message: '请登录后查看草稿文章'
+            message: '请登录后查看草稿帖子'
           }), {
             status: 401,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -120,7 +120,7 @@ export async function onRequest(context) {
         if (post.author_id !== user.id && user.role !== 'admin' && user.role !== 'super_admin') {
           return new Response(JSON.stringify({
             success: false,
-            message: '无权限访问此文章'
+            message: '无权限访问此帖子'
           }), {
             status: 403,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }

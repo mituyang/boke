@@ -23,7 +23,7 @@ interface UserPost {
 
 // 移除静态文章类型定义，只使用用户文章
 
-export default function BlogPage() {
+export default function ForumPage() {
   const [posts, setPosts] = useState<UserPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'static' | 'user'>('all');
@@ -105,13 +105,13 @@ export default function BlogPage() {
       <div className="mb-6 md:mb-8">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-            所有文章
+            社区论坛
           </h1>
           <div className="flex flex-wrap gap-2">
             {[
               { key: 'all', label: '全部' },
-              { key: 'static', label: '官方文章' },
-              { key: 'user', label: '用户文章' }
+              { key: 'static', label: '官方帖子' },
+              { key: 'user', label: '用户帖子' }
             ].map((item) => (
               <button
                 key={item.key}
@@ -129,20 +129,20 @@ export default function BlogPage() {
         </div>
         
         <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
-          发现有趣的内容 • 共 {filteredPosts.length} 篇文章
+          发现有趣的讨论 • 共 {filteredPosts.length} 个帖子
         </p>
       </div>
 
       {filteredPosts.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-600 dark:text-gray-400 text-lg">暂时还没有文章</p>
+          <p className="text-gray-600 dark:text-gray-400 text-lg">暂时还没有帖子</p>
           <p className="text-gray-500 dark:text-gray-500 mt-2">请稍后再来查看</p>
         </div>
       ) : (
         <div className="space-y-6 md:space-y-8">
           {filteredPosts.map((post) => (
             <article key={`${post.type}-${post.slug}`} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6 hover:shadow-lg transition-shadow">
-              {/* 文章类型标识 */}
+              {/* 帖子类型标识 */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 space-y-2 sm:space-y-0">
                 <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
                   <span className={`px-2 py-1 rounded text-xs font-medium w-fit ${
@@ -150,7 +150,7 @@ export default function BlogPage() {
                       ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-400' 
                       : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-400'
                   }`}>
-                    {post.is_official ? '官方文章' : '用户文章'}
+                    {post.is_official ? '官方帖子' : '用户帖子'}
                   </span>
                   <span className="text-sm text-gray-500 dark:text-gray-400">
                     作者：{post.author_name}
@@ -183,7 +183,7 @@ export default function BlogPage() {
                   href={`/article?slug=${post.slug}&type=user`}
                   className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium w-fit"
                 >
-                  阅读全文 →
+                  查看详情 →
                 </Link>
               </div>
             </article>

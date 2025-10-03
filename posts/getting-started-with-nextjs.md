@@ -1,7 +1,7 @@
 ---
 title: "Next.js 入门指南：从零开始构建现代化 Web 应用"
 date: "2024-01-15"
-excerpt: "Next.js 是目前最受欢迎的 React 框架之一。本文将带你从零开始学习 Next.js 的核心概念和特性。"
+excerpt: "Next.js 是目前最受欢迎的 React 框架之一。这个帖子将带你从零开始学习 Next.js 的核心概念和特性。"
 tags: ["Next.js", "React", "Web开发", "教程"]
 ---
 

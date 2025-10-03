@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 文章统计表
+-- 帖子统计表
 CREATE TABLE IF NOT EXISTS post_stats (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   post_slug TEXT UNIQUE NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS site_stats (
 -- 初始化网站统计数据
 INSERT INTO site_stats (total_visits, total_comments) VALUES (0, 0);
 
--- 为现有文章创建统计记录
+-- 为现有帖子创建统计记录
 INSERT OR IGNORE INTO post_stats (post_slug, view_count, comment_count) VALUES 
   ('hello-world', 0, 0),
   ('getting-started-with-nextjs', 0, 0),  

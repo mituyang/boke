@@ -8,8 +8,8 @@ import { AuthProvider } from '@/components/AuthContext'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: '我的个人博客',
-  description: '使用 Next.js 和 TypeScript 构建的个人博客',
+  title: '社区论坛',
+  description: '使用 Next.js 和 TypeScript 构建的社区论坛',
 }
 
 export default function RootLayout({

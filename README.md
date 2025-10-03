@@ -1,16 +1,19 @@
-# 个人博客
+# 社区论坛
 
-这是一个使用 Next.js、TypeScript 和 Tailwind CSS 构建的现代化个人博客，适合部署到 Cloudflare Pages。
+这是一个使用 Next.js、TypeScript 和 Tailwind CSS 构建的现代化社区论坛，适合部署到 Cloudflare Pages。
 
 ## 功能特性
 
 - ✨ **现代化技术栈** - Next.js 14 + TypeScript + Tailwind CSS
 - 📱 **响应式设计** - 适配各种设备和屏幕尺寸
-- 📝 **Markdown 支持** - 使用 Markdown 编写博客文章
-- 🏷️ **标签系统** - 文章分类和检索
+- 📝 **Markdown 支持** - 使用 Markdown 编写论坛帖子
+- 🏷️ **标签系统** - 帖子分类和检索
 - ⚡ **静态生成** - 极快的加载速度
 - 🔍 **SEO 优化** - 良好的搜索引擎优化
 - 🎨 **美观界面** - 简洁现代的设计风格
+- 💬 **聊天功能** - 实时聊天室
+- 👥 **用户系统** - 用户注册、登录、个人资料
+- ❤️ **互动功能** - 点赞、评论、关注
 
 ## 技术栈
 
@@ -54,7 +57,7 @@ npm run build
 \`\`\`
 ├── app/                    # Next.js App Router
 │   ├── about/             # 关于页面
-│   ├── blog/              # 博客相关页面
+│   ├── forum/             # 论坛相关页面
 │   ├── contact/           # 联系页面
 │   ├── globals.css        # 全局样式
 │   ├── layout.tsx         # 根布局
@@ -65,7 +68,7 @@ npm run build
 ├── lib/                   # 工具库
 │   ├── posts.ts          # 文章管理
 │   └── utils.ts          # 通用工具
-├── posts/                 # Markdown 文章
+├── posts/                 # Markdown 帖子
 │   ├── hello-world.md
 │   ├── getting-started-with-nextjs.md
 │   └── thoughts-on-web-development.md
@@ -75,25 +78,25 @@ npm run build
 └── next.config.js        # Next.js 配置
 \`\`\`
 
-## 添加新文章
+## 添加新帖子
 
 1. 在 \`posts/\` 目录下创建新的 \`.md\` 文件
 2. 在文件顶部添加 Front Matter：
 
 \`\`\`markdown
 ---
-title: "文章标题"
+title: "帖子标题"
 date: "2024-01-01"
-excerpt: "文章摘要"
+excerpt: "帖子摘要"
 tags: ["标签1", "标签2"]
 ---
 
-# 文章内容
+# 帖子内容
 
-这里是你的文章内容...
+这里是你的帖子内容...
 \`\`\`
 
-3. 重新构建项目，新文章会自动出现在博客中
+3. 重新构建项目，新帖子会自动出现在论坛中
 
 ## 部署到 Cloudflare Pages
 

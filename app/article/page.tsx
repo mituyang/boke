@@ -42,7 +42,7 @@ function ArticleContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 获取用户文章详情
+  // 获取用户帖子详情
   const fetchUserPost = async (slug: string) => {
     try {
       // 对slug进行URL编码以处理特殊字符
@@ -56,29 +56,29 @@ function ArticleContent() {
         setUserPost(data.post);
         setError(null);
       } else {
-        setError(data.message || '文章不存在');
+        setError(data.message || '帖子不存在');
         setUserPost(null);
       }
     } catch (error) {
-      console.error('获取文章失败:', error);
-      setError('加载文章失败');
+      console.error('获取帖子失败:', error);
+      setError('加载帖子失败');
       setUserPost(null);
     } finally {
       setLoading(false);
     }
   };
 
-  // 获取静态文章详情
+  // 获取静态帖子详情
   const fetchStaticPost = async (slug: string) => {
     try {
-      // 使用静态文章数据
+      // 使用静态帖子数据
       const staticPosts = [
         {
           slug: 'hello-world',
-          title: '欢迎来到我的博客',
-          content: '# 欢迎来到我的博客\n\n这是我的第一篇博客文章。在这里，我将分享我的技术心得、生活感悟和各种有趣的想法。\n\n## 关于这个博客\n\n这个博客使用 Next.js 和 TypeScript 构建，部署在 Cloudflare Pages 上。它具有以下特性：\n\n- 响应式设计\n- 现代化的 UI\n- 快速的加载速度\n- SEO 友好\n\n## 未来计划\n\n我计划在这里分享：\n\n1. **技术文章** - Web 开发、前端技术、最佳实践\n2. **项目分享** - 我正在进行的有趣项目\n3. **学习笔记** - 新技术的学习心得\n4. **生活感悟** - 工作和生活的平衡\n\n希望你能喜欢这里的内容！',
+          title: '欢迎来到社区论坛！',
+          content: '# 欢迎来到社区论坛！\n\n这是我们的第一个帖子。在这里，我们将分享技术心得、社区讨论和各种有趣的想法。\n\n## 关于这个论坛\n\n这个论坛使用 Next.js 和 TypeScript 构建，部署在 Cloudflare Pages 上。它具有以下特性：\n\n- 响应式设计\n- 现代化的 UI\n- 快速的加载速度\n- SEO 友好\n- 用户系统\n- 互动功能\n\n## 未来计划\n\n我们计划在这里分享：\n\n1. **技术教程** - Web 开发、前端技术、最佳实践\n2. **项目分享** - 社区正在进行的有趣项目\n3. **学习笔记** - 新技术的学习心得\n4. **社区讨论** - 技术话题的深入交流\n\n希望你能喜欢这里的内容！',
           date: '2024-01-01',
-          excerpt: '欢迎来到我的个人博客！这里将分享技术、生活和各种有趣的内容。'
+          excerpt: '欢迎来到我们的社区论坛！这里将分享技术、生活和各种有趣的内容。'
         },
         {
           slug: 'getting-started-with-nextjs',
@@ -101,12 +101,12 @@ function ArticleContent() {
         setStaticPost(post);
         setError(null);
       } else {
-        setError('文章不存在');
+        setError('帖子不存在');
         setStaticPost(null);
       }
     } catch (error) {
-      console.error('获取静态文章失败:', error);
-      setError('加载文章失败');
+      console.error('获取静态帖子失败:', error);
+      setError('加载帖子失败');
       setStaticPost(null);
     } finally {
       setLoading(false);
@@ -115,7 +115,7 @@ function ArticleContent() {
 
   useEffect(() => {
     if (!slug) {
-      setError('缺少文章ID');
+      setError('缺少帖子ID');
       setLoading(false);
       return;
     }
@@ -171,13 +171,13 @@ function ArticleContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="max-w-md w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">文章不存在</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">帖子不存在</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">{error || '请检查链接是否正确'}</p>
           <Link
-            href="/blog"
+            href="/forum"
             className="inline-block bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-700 dark:hover:bg-blue-600"
           >
-            返回博客列表
+            返回论坛列表
           </Link>
         </div>
       </div>
@@ -189,15 +189,15 @@ function ArticleContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* 文章头部 */}
+      {/* 帖子头部 */}
       <div className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
           <div className="mb-4">
             <Link 
-              href="/blog" 
+              href="/forum" 
               className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm"
             >
-              ← 返回博客列表
+              ← 返回论坛列表
             </Link>
           </div>
           
@@ -221,7 +221,7 @@ function ArticleContent() {
             </div>
           </div>
 
-          {/* 文章统计和点赞 */}
+          {/* 帖子统计和点赞 */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 pb-6 border-b border-gray-200 dark:border-gray-700">
             <PostStats postSlug={slug!} showIncrement={true} showLikes={false} />
             <LikeButton slug={slug!} />
@@ -229,7 +229,7 @@ function ArticleContent() {
         </div>
       </div>
 
-      {/* 文章内容 */}
+      {/* 帖子内容 */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-8">
           <div 

@@ -36,7 +36,7 @@ export default function Header() {
       <nav className="container mx-auto px-4 py-4 relative">
         <div className="flex items-center justify-between w-full">
           <Link href="/" className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-            我的博客
+            社区论坛
           </Link>
           
           {/* 桌面端导航 - 横向展开 */}
@@ -45,8 +45,8 @@ export default function Header() {
               <Link href="/" className={getLinkStyle('/')}>
                 首页
               </Link>
-              <Link href="/blog" className={getLinkStyle('/blog')}>
-                博客
+              <Link href="/forum" className={getLinkStyle('/forum')}>
+                论坛
               </Link>
               <Link href="/about" className={getLinkStyle('/about')}>
                 关于
@@ -62,10 +62,10 @@ export default function Header() {
                     💬 聊天室
                   </Link>
                   <Link href="/write" className={getLinkStyle('/write')}>
-                    写文章
+                    发帖子
                   </Link>
                   <Link href="/my-posts" className={getLinkStyle('/my-posts')}>
-                    我的文章
+                    我的帖子
                   </Link>
                 </>
               )}
@@ -165,11 +165,11 @@ export default function Header() {
                   首页
                 </Link>
                 <Link 
-                  href="/blog" 
-                  className={`${getLinkStyle('/blog')} block px-3 py-2 rounded-md text-base font-medium`}
+                  href="/forum" 
+                  className={`${getLinkStyle('/forum')} block px-3 py-2 rounded-md text-base font-medium`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  博客
+                  论坛
                 </Link>
                 <Link 
                   href="/about" 
@@ -202,14 +202,14 @@ export default function Header() {
                       className={`${getLinkStyle('/write')} block px-3 py-2 rounded-md text-base font-medium`}
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      写文章
+                      发帖子
                     </Link>
                     <Link 
                       href="/my-posts" 
                       className={`${getLinkStyle('/my-posts')} block px-3 py-2 rounded-md text-base font-medium`}
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      我的文章
+                      我的帖子
                     </Link>
                     {isAdmin() && (
                       <Link 
